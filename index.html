@@ -602,52 +602,72 @@ function idbOpen(){
       if(!db.objectStoreNames.contains('kv')) db.createObjectStore('kv', {keyPath:'k'});
       if(!db.objectStoreNames.contains('files')) db.createObjectStore('files', {keyPath:'fid', autoIncrement:true});
     };
-    req.onsuccess=function(){ resolve(req.result); };
-    req.onerror=function(){ reject(req.error); };
+    req.onsuccess=function(){
+      var db=req.result;
+      db.onversionchange=function(){ try{ db.close(); }catch(e){} DBP=null; };
+      db.onclose=function(){ DBP=null; };
+      resolve(db);
+    };
+    req.onerror=function(){ DBP=null; reject(req.error); };
   });
   return DBP;
 }
+function idbIsConnErr(e){ return !!(e && (e.name==='InvalidStateError' || e.name==='AbortError')); }
+async function idbRetry(fn){
+  try{ return await fn(); }
+  catch(e){ if(idbIsConnErr(e)){ DBP=null; return await fn(); } throw e; }
+}
 async function idbPut(store, value){
-  var db=await idbOpen();
-  return new Promise(function(resolve, reject){
-    var tx=db.transaction(store, 'readwrite');
-    var req=tx.objectStore(store).put(value);
-    req.onerror=function(){ reject(req.error||new Error('put failed')); };
-    tx.oncomplete=function(){ resolve(true); };
-    tx.onabort=function(){ reject(tx.error||new Error('transaction aborted')); };
-    tx.onerror=function(){ reject(tx.error||new Error('transaction error')); };
+  return idbRetry(async function(){
+    var db=await idbOpen();
+    return new Promise(function(resolve, reject){
+      var tx=db.transaction(store, 'readwrite');
+      var req=tx.objectStore(store).put(value);
+      req.onerror=function(){ reject(req.error||new Error('put failed')); };
+      tx.oncomplete=function(){ resolve(true); };
+      tx.onabort=function(){ reject(tx.error||new Error('transaction aborted')); };
+      tx.onerror=function(){ reject(tx.error||new Error('transaction error')); };
+    });
   });
 }
 async function idbGet(store, key){
-  var db=await idbOpen();
-  return new Promise(function(resolve, reject){
-    var rq=db.transaction(store, 'readonly').objectStore(store).get(key);
-    rq.onsuccess=function(){ resolve(rq.result); };
-    rq.onerror=function(){ reject(rq.error); };
+  return idbRetry(async function(){
+    var db=await idbOpen();
+    return new Promise(function(resolve, reject){
+      var rq=db.transaction(store, 'readonly').objectStore(store).get(key);
+      rq.onsuccess=function(){ resolve(rq.result); };
+      rq.onerror=function(){ reject(rq.error); };
+    });
   });
 }
 async function idbAll(store){
-  var db=await idbOpen();
-  return new Promise(function(resolve, reject){
-    var rq=db.transaction(store, 'readonly').objectStore(store).getAll();
-    rq.onsuccess=function(){ resolve(rq.result||[]); };
-    rq.onerror=function(){ reject(rq.error); };
+  return idbRetry(async function(){
+    var db=await idbOpen();
+    return new Promise(function(resolve, reject){
+      var rq=db.transaction(store, 'readonly').objectStore(store).getAll();
+      rq.onsuccess=function(){ resolve(rq.result||[]); };
+      rq.onerror=function(){ reject(rq.error); };
+    });
   });
 }
 async function idbDelete(store, key){
-  var db=await idbOpen();
-  return new Promise(function(resolve, reject){
-    var tx=db.transaction(store, 'readwrite');
-    tx.objectStore(store).delete(key);
-    tx.oncomplete=resolve; tx.onerror=function(){ reject(tx.error); };
+  return idbRetry(async function(){
+    var db=await idbOpen();
+    return new Promise(function(resolve, reject){
+      var tx=db.transaction(store, 'readwrite');
+      tx.objectStore(store).delete(key);
+      tx.oncomplete=resolve; tx.onerror=function(){ reject(tx.error); };
+    });
   });
 }
 async function idbClearAll(){
-  var db=await idbOpen();
-  return new Promise(function(resolve, reject){
-    var tx=db.transaction(['kv','files'], 'readwrite');
-    tx.objectStore('kv').clear(); tx.objectStore('files').clear();
-    tx.oncomplete=resolve; tx.onerror=function(){ reject(tx.error); };
+  return idbRetry(async function(){
+    var db=await idbOpen();
+    return new Promise(function(resolve, reject){
+      var tx=db.transaction(['kv','files'], 'readwrite');
+      tx.objectStore('kv').clear(); tx.objectStore('files').clear();
+      tx.oncomplete=resolve; tx.onerror=function(){ reject(tx.error); };
+    });
   });
 }
 async function storeFileRecord(file, leadsCount, note){
