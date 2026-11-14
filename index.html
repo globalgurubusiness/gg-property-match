@@ -719,7 +719,16 @@ async function deleteStored(fid){
   renderFileLib();
 }
 async function clearAllData(){
-  if(!confirm('Sara stored data (leads + files) clear ho jayega. Pakka?')) return;
+  var cbtn=document.querySelector('button[onclick="clearAllData()"]');
+  if(!window.__clearArmed){
+    window.__clearArmed=true;
+    if(cbtn){ cbtn.textContent='Pakka? Dobara click karein — sara data clear ho jayega'; }
+    setStatus('Clear karne ke liye Clear wale button par aik dafa aur click karein.');
+    setTimeout(function(){ window.__clearArmed=false; if(cbtn){ cbtn.textContent='Sara Stored Data Clear Karo'; } }, 6000);
+    return;
+  }
+  window.__clearArmed=false;
+  if(cbtn){ cbtn.textContent='Sara Stored Data Clear Karo'; }
   try{ await idbClearAll(); }catch(e){}
   try{ localStorage.removeItem('ggpm_status'); }catch(e){}
   LEADS=[]; MATCHES=[]; FILTERED=[];
