@@ -51,6 +51,7 @@ table{width:100%;border-collapse:collapse;font-size:12px}
 th,td{border-bottom:1px solid #eee;padding:6px;text-align:left}
 footer{text-align:center;color:#888;font-size:12px;padding:18px}
 .hlogo{width:88px;height:88px;border-radius:50%;background:#fff;padding:3px;box-shadow:0 4px 16px rgba(0,0,0,.3);display:block;margin:0 auto 8px}
+.titlelogo{width:54px;height:54px;border-radius:50%;background:#fff;padding:2px;box-shadow:0 3px 10px rgba(0,0,0,.3);vertical-align:-14px}
 .slogo{width:22px;height:22px;border-radius:50%;vertical-align:-6px;margin-right:7px}
 .mlogo{width:20px;height:20px;border-radius:50%;margin-left:auto}
 .blogo{width:20px;height:20px;border-radius:50%;vertical-align:-5px;margin-right:6px}
@@ -62,15 +63,14 @@ body{padding-bottom:52px}
 </head>
 <body>
 <header>
-<img class="ggimg hlogo" alt="Global Guru Logo">
-<h1>GG <span>Property Match</span></h1>
+<h1><img class="ggimg titlelogo" alt="Global Guru Logo"> <span>Property Match</span></h1>
 <p>Data dalo — Excel, WhatsApp ZIP ya Google Sheet — matches khud nikal ayenge</p>
 </header>
 <div class="brandline"><img class="ggimg blogo" alt="GG">Global Guru — Your Digital Partner</div>
 <div class="wrap">
 
 <div class="card">
-<h2><img class="ggimg slogo" alt="GG">1 — Apna Brand Naam (messages mein yehi jayega)</h2>
+<h2>1 — Apna Brand Naam (messages mein yehi jayega)</h2>
 <div class="row">
 <input type="text" id="brandInput" value="F&B Associate" style="flex:1;min-width:200px">
 <button class="btn" onclick="saveBrand()">Save karo</button>
@@ -78,7 +78,7 @@ body{padding-bottom:52px}
 </div>
 
 <div class="card">
-<h2><img class="ggimg slogo" alt="GG">2 — Data Put Karo</h2>
+<h2>2 — Data Put Karo</h2>
 <div class="drop" id="dropZone">
 <b>File yahan drop karo ya click karke select karo</b><br>
 <span style="font-size:13px;color:#666">Excel (.xlsx / .xls / .csv) · WhatsApp export (.zip / .txt) — aik saath kai files bhi de sakte ho</span>
@@ -105,7 +105,7 @@ body{padding-bottom:52px}
 </div>
 
 <div class="card" style="margin-top:14px">
-<h2><img class="ggimg slogo" alt="GG">3 — Matches</h2>
+<h2>3 — Matches</h2>
 <div class="row" style="margin-bottom:10px">
 <input type="text" id="fSearch" placeholder="Search: naam, number, plot, sector..." style="flex:1;min-width:180px" oninput="applyFilters(true)">
 <select id="fLoc" onchange="applyFilters(true)"><option value="">Sab Locations</option></select>
@@ -119,7 +119,7 @@ body{padding-bottom:52px}
 </div>
 
 <div class="card">
-<h2><img class="ggimg slogo" alt="GG">Leads Preview <button class="btn grey" style="padding:5px 10px;font-size:12px" onclick="toggleLeads()">Dikhao / Chhupao</button></h2>
+<h2>Leads Preview <button class="btn grey" style="padding:5px 10px;font-size:12px" onclick="toggleLeads()">Dikhao / Chhupao</button></h2>
 <div id="leadsBox" class="hidden" style="overflow-x:auto"></div>
 </div>
 
