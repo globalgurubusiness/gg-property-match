@@ -581,9 +581,10 @@ async function handleFiles(files){
     var leads=[], errMsg='';
     try{ leads=await processFileBlob(f, f.name, 0); }
     catch(err){ errMsg=err.message||'parhne mein masla'; }
-    try{ await storeFileRecord(f, leads.length, errMsg); }catch(e){}
+    var storeOk=true, storeErr='';
+    try{ await storeFileRecord(f, leads.length, errMsg); }catch(e){ storeOk=false; storeErr=(e && e.name? e.name+': ':'')+(e && e.message? e.message : String(e)); }
     allLeads=allLeads.concat(leads);
-    summary.push(f.name+' → store ho gayi, '+leads.length+' leads nikleen'+(errMsg?(' (note: '+errMsg+')'):''));
+    summary.push(f.name+' → '+(storeOk? 'store ho gayi' : '⚠ STORE NAHI HUI ('+storeErr+')')+', '+leads.length+' leads nikleen'+(errMsg?(' (note: '+errMsg+')'):''));
   }
   renderFileLib();
   if(allLeads.length){ addLeads(allLeads); }
@@ -610,8 +611,11 @@ async function idbPut(store, value){
   var db=await idbOpen();
   return new Promise(function(resolve, reject){
     var tx=db.transaction(store, 'readwrite');
-    tx.objectStore(store).put(value);
-    tx.oncomplete=resolve; tx.onerror=function(){ reject(tx.error); };
+    var req=tx.objectStore(store).put(value);
+    req.onerror=function(){ reject(req.error||new Error('put failed')); };
+    tx.oncomplete=function(){ resolve(true); };
+    tx.onabort=function(){ reject(tx.error||new Error('transaction aborted')); };
+    tx.onerror=function(){ reject(tx.error||new Error('transaction error')); };
   });
 }
 async function idbGet(store, key){
@@ -647,10 +651,26 @@ async function idbClearAll(){
   });
 }
 async function storeFileRecord(file, leadsCount, note){
-  await idbPut('files', { name:file.name, type:file.type||'', size:file.size, date:new Date().toISOString(), leads:leadsCount, note:note||'', blob:file });
+  var buf=await file.arrayBuffer();
+  return idbPut('files', { name:file.name, type:file.type||'', size:file.size, date:new Date().toISOString(), leads:leadsCount, note:note||'', data:buf });
 }
 async function persistLeads(){
-  try{ await idbPut('kv', {k:'leads', v:LEADS}); updateStorageInfo(); }catch(e){}
+  try{
+    await idbPut('kv', {k:'leads', v:LEADS});
+    var rec=await idbGet('kv', 'leads');
+    var ok=!!(rec && rec.v && rec.v.length===LEADS.length);
+    if(!ok){
+      await idbPut('kv', {k:'leads', v:LEADS});
+      rec=await idbGet('kv', 'leads');
+      ok=!!(rec && rec.v && rec.v.length===LEADS.length);
+    }
+    window.__storeOk=ok; window.__storeErr= ok? '' : 'verify failed (likha kuch, parha kuch aur)';
+    updateStorageInfo();
+    return ok;
+  }catch(e){
+    window.__storeOk=false; window.__storeErr=(e && e.name? e.name+': ':'')+(e && e.message? e.message : String(e));
+    return false;
+  }
 }
 function fmtSize(n){
   if(n==null) return '—';
@@ -688,9 +708,10 @@ async function renderFileLib(){
 }
 async function downloadStored(fid){
   var rec=await idbGet('files', fid);
-  if(!rec || !rec.blob) return;
+  if(!rec || (!rec.data && !rec.blob)) return;
+  var blob=rec.blob? rec.blob : new Blob([rec.data], {type:rec.type||'application/octet-stream'});
   var a=document.createElement('a');
-  a.href=URL.createObjectURL(rec.blob); a.download=rec.name; a.click();
+  a.href=URL.createObjectURL(blob); a.download=rec.name; a.click();
   setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
 }
 async function deleteStored(fid){
@@ -789,8 +810,10 @@ function addLeads(newLeads){
     buildLocFilter();
     applyFilters(true);
     renderLeads();
-    persistLeads();
-    setStatus('Ho gaya — '+LEADS.length+' leads se '+MATCHES.length+' best matches nikle ('+Math.round((Date.now()-t0)/1000)+' sec) — data store bhi ho gaya hai. Ab pehle Same Plot aur Score 100 walon se shuru karein.');
+    var baseMsg='Ho gaya — '+LEADS.length+' leads se '+MATCHES.length+' best matches nikle ('+Math.round((Date.now()-t0)/1000)+' sec)';
+    persistLeads().then(function(ok){
+      setStatus(baseMsg+(ok? ' — data store bhi ho gaya hai.' : ' — ⚠ LEKIN data store NAHI hua: '+(window.__storeErr||'unknown error')+' — ye error mujhe bhejein.')+' Ab pehle Same Plot aur Score 100 walon se shuru karein.');
+    });
   }, 60);
 }
 
