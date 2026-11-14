@@ -6,6 +6,9 @@
 <title>GG Property Match — Buyer Seller Matching App</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/libarchive.js@1.3.0/dist/libarchive.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#f7f3ee;color:#222}
@@ -80,9 +83,9 @@ body{padding-bottom:52px}
 <div class="card">
 <h2>2 — Data Put Karo</h2>
 <div class="drop" id="dropZone">
-<b>File yahan drop karo ya click karke select karo</b><br>
-<span style="font-size:13px;color:#666">Excel (.xlsx / .xls / .csv) · WhatsApp export (.zip / .txt) — aik saath kai files bhi de sakte ho</span>
-<input type="file" id="fileInput" multiple accept=".xlsx,.xls,.csv,.zip,.txt,.rar" class="hidden">
+<b>Koi Bhi File Yahan Drop Karo Ya Click Karke Select Karo</b><br>
+<span style="font-size:13px;color:#666">RAR · ZIP · Excel · Sheet/CSV · Word · PDF · TXT · Photo — jo file bhi ho, pehle app ke store mein save hogi, phir us se data niklega. Aik saath kai files bhi de sakte ho.</span>
+<input type="file" id="fileInput" multiple class="hidden">
 </div>
 <div id="statusLine"></div>
 <div style="margin-top:12px">
@@ -92,7 +95,7 @@ body{padding-bottom:52px}
 <button class="btn grey" onclick="loadDemo()">Demo Data Se Try Karo</button>
 </div>
 </div>
-<div class="note" style="margin-top:12px"><b>RAR wali baat:</b> Browser mein .rar file direct nahi khulti. Agar data RAR mein hai to pehle usay computer/mobile par extract karke andar wali files (Excel ya WhatsApp ZIP/TXT) yahan dal do — ya RAR ko ZIP bana kar dal do, chal jayegi.</div>
+<div class="note" style="margin-top:12px"><b>Har file store hoti hai:</b> Jo file bhi dalo ge, woh pehle neeche wale <b>Stored Data</b> hisse mein save ho jayegi — app band karke dobara kholo ge to data wapas mil jayega. WhatsApp groups ki chat RAR/ZIP mein ho to seedha dal do, andar ki chat khud parh legi. Photo wali file store ho jayegi lekin us se text wali leads nahi niklein gi.</div>
 </div>
 
 <div class="stats" id="statsBox">
@@ -116,6 +119,16 @@ body{padding-bottom:52px}
 <div class="note">Har buyer ke sirf <b>best 5 matches</b> rakhe jate hain. Pehle seller ko <b>Verify</b> karo, confirm ho to buyer ko <b>Forward</b> karo. Data sirf aap ke browser mein rehta hai — kisi server par nahi jata.</div>
 <div id="matchList"></div>
 <button class="btn grey hidden" id="moreBtn" onclick="renderMore()">Aur Matches Dikhao</button>
+</div>
+
+<div class="card">
+<h2>4 — Stored Data (jo files dali, sab mehfooz)</h2>
+<div id="storageInfo" style="font-size:13px;color:#555;margin-bottom:8px">Store check ho raha hai...</div>
+<div id="fileLib" style="overflow-x:auto"></div>
+<div class="row" style="margin-top:10px">
+<button class="btn grey" onclick="renderFileLib()">Files List Refresh</button>
+<button class="btn" style="background:#b00020" onclick="clearAllData()">Sara Stored Data Clear Karo</button>
+</div>
 </div>
 
 <div class="card">
@@ -416,6 +429,48 @@ function buyerForwardMsg(m, brand){
   return "Assalam o Alaikum, "+br+" ki taraf se. Aap ko "+(s.location||"Multan")+" mein "+sizeLabel(b.sizeMarla||s.sizeMarla)+" plot chahiye tha (budget "+moneyFmt(b.price)+"). Aik confirm option mila hai: Sector "+(s.sector||"")+", Plot No "+(s.plotNo||"")+", demand "+moneyFmt(s.price)+". Ye aap ke mange hue plot se mukhtalif plot hai, lekin wahi sector, size aur price range hai. Agar ye option theek hai to bataein, main visit aur baat aage barha dun.";
 }
 
+// ===== Generic text (Word / PDF / aam TXT) se leads =====
+function leadFromText(body, sourceName, senderName, dateStr){
+  body=String(body||"").trim();
+  if(body.length<8) return null;
+  var intent=detectIntent(body);
+  var loc=findLocation(body);
+  var sp=extractSectorPlot(body);
+  var sizeM=sizeToMarla(body);
+  var priceInfo=parsePriceFromText(body);
+  var price=priceInfo?priceInfo.price:null;
+  if(priceInfo && priceInfo.perMarla && sizeM) price=price*sizeM;
+  var phone="";
+  var pm=body.match(/(?:\+92|0)3\d{2}[-\s]?\d{7}/); if(pm) phone=cleanPhone(pm[0]);
+  if(!loc && !phone && !sizeM) return null; // property se mutalliq koi nishani nahi
+  return {
+    id:"TX-"+Math.abs(body.split("").reduce(function(a,c){return ((a<<5)-a+c.charCodeAt(0))|0;},0))+"-"+(body.length),
+    intent:intent, type:detectType(body), location:loc,
+    sector:sp.sector, plotNo:sp.plot, sizeMarla:sizeM, price:price,
+    name:senderName||"", phone:phone, date:dateStr||"", source:sourceName||"Text", detail:body.slice(0,400)
+  };
+}
+function parseGenericText(text, sourceName){
+  var t=String(text||"");
+  // Agar ye WhatsApp chat jaisi hai to wahi parser behtar hai
+  if(/\d{1,2}\/\d{1,2}\/\d{2,4},?\s+\d{1,2}:\d{2}\s*-\s/.test(t)){
+    return parseWhatsAppText(t, sourceName);
+  }
+  var leads=[];
+  var blocks=t.split(/\n\s*\n/);
+  blocks.forEach(function(b){
+    // bare block ko lines par bhi tor kar dekho agar block bohat bara hai
+    if(b.length>600){
+      b.split(/\n/).forEach(function(line){
+        var l=leadFromText(line, sourceName); if(l) leads.push(l);
+      });
+    } else {
+      var l2=leadFromText(b, sourceName); if(l2) leads.push(l2);
+    }
+  });
+  return leads;
+}
+
 </script>
 <script>
 // ===== App State & UI =====
@@ -434,39 +489,233 @@ drop.addEventListener('dragover', function(e){ e.preventDefault(); });
 drop.addEventListener('drop', function(e){ e.preventDefault(); handleFiles(e.dataTransfer.files); });
 fi.addEventListener('change', function(){ handleFiles(fi.files); });
 
+// ===== Universal File Processing — koi bhi file =====
+var archiveReady=false;
+async function ensureArchive(){
+  if(archiveReady) return true;
+  if(typeof Archive==='undefined') return false;
+  try{
+    await Archive.init({ workerUrl: 'https://cdn.jsdelivr.net/npm/libarchive.js@1.3.0/dist/worker-bundle.js' });
+    archiveReady=true; return true;
+  }catch(e){ return false; }
+}
+function flattenArchiveFiles(obj, out){
+  out=out||[];
+  if(!obj || typeof obj!=='object') return out;
+  if(obj instanceof File || obj instanceof Blob){ out.push(obj); return out; }
+  Object.keys(obj).forEach(function(k){
+    var v=obj[k];
+    if(v instanceof File || v instanceof Blob){ try{ out.push(new File([v], v.name||k, {type:v.type||''})); }catch(e){ out.push(v); } }
+    else if(v && typeof v==='object') flattenArchiveFiles(v, out);
+  });
+  return out;
+}
+async function processFileBlob(blob, name, depth){
+  depth=depth||0;
+  var leads=[];
+  var ext=(String(name).split('.').pop()||'').toLowerCase();
+  try{
+    if(depth>3) return leads;
+    if(ext==='zip'){
+      var zip=await JSZip.loadAsync(blob);
+      var names=Object.keys(zip.files);
+      for(var j=0;j<names.length;j++){
+        var entry=zip.files[names[j]];
+        if(entry.dir) continue;
+        var eb=await entry.async('blob');
+        leads=leads.concat(await processFileBlob(new File([eb], names[j]), names[j], depth+1));
+      }
+    } else if(ext==='rar' || ext==='7z' || ext==='tar' || ext==='gz' || ext==='tgz'){
+      var ok=await ensureArchive();
+      if(!ok) throw new Error('Archive library load nahi hui — internet check karke dobara try karein');
+      var archive=await Archive.open(blob instanceof File? blob : new File([blob], name));
+      var extracted=await archive.extractFiles();
+      var inner=flattenArchiveFiles(extracted, []);
+      for(var k=0;k<inner.length;k++){
+        leads=leads.concat(await processFileBlob(inner[k], inner[k].name||('file'+k), depth+1));
+      }
+    } else if(ext==='xlsx' || ext==='xls' || ext==='csv'){
+      leads=leads.concat(readWorkbook(await blob.arrayBuffer()));
+    } else if(ext==='docx'){
+      if(typeof mammoth==='undefined') throw new Error('Word library load nahi hui');
+      var res=await mammoth.extractRawText({arrayBuffer: await blob.arrayBuffer()});
+      leads=leads.concat(parseGenericText(res.value||'', name));
+    } else if(ext==='pdf'){
+      if(typeof pdfjsLib==='undefined') throw new Error('PDF library load nahi hui');
+      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      var pdf=await pdfjsLib.getDocument({data: await blob.arrayBuffer()}).promise;
+      var allText='';
+      for(var p=1;p<=pdf.numPages;p++){
+        var page=await pdf.getPage(p);
+        var tc=await page.getTextContent();
+        allText+=tc.items.map(function(it){return it.str;}).join(' ')+'\n\n';
+      }
+      leads=leads.concat(parseGenericText(allText, name));
+    } else if(ext==='txt' || ext==='md' || ext==='text'){
+      leads=leads.concat(parseGenericText(await blob.text(), name));
+    } else if(ext==='json'){
+      var data=JSON.parse(await blob.text());
+      if(Array.isArray(data) && data.length && typeof data[0]==='object'){
+        var headers=Object.keys(data[0]);
+        var arrs=[headers].concat(data.map(function(o){ return headers.map(function(h){ return o[h]; }); }));
+        leads=leads.concat(parseSheetArrays(arrs));
+      }
+    } else if(ext==='html' || ext==='htm'){
+      var raw=await blob.text();
+      var div=document.createElement('div'); div.innerHTML=raw;
+      leads=leads.concat(parseGenericText(div.textContent||'', name));
+    }
+    // photo aur baqi formats: leads nahi, lekin file store ho jati hai (neeche handleFiles mein)
+  }catch(err){
+    throw err;
+  }
+  return leads;
+}
+
 async function handleFiles(files){
   if(!files.length) return;
-  setStatus('Files parhi ja rahi hain...');
-  var newLeads=[];
+  var allLeads=[], summary=[];
   for(var i=0;i<files.length;i++){
     var f=files[i];
-    try{
-      if(/\.rar$/i.test(f.name)){ setStatus('RAR direct nahi khulta — "'+f.name+'" ko extract karke andar wali file dal dein.'); continue; }
-      if(/\.zip$/i.test(f.name)){
-        var zip=await JSZip.loadAsync(f);
-        var names=Object.keys(zip.files);
-        for(var j=0;j<names.length;j++){
-          var entry=zip.files[names[j]];
-          if(entry.dir) continue;
-          if(/\.txt$/i.test(names[j])){
-            var txt=await entry.async('string');
-            newLeads=newLeads.concat(parseWhatsAppText(txt, f.name));
-          } else if(/\.(xlsx|xls|csv)$/i.test(names[j])){
-            var buf=await entry.async('arraybuffer');
-            newLeads=newLeads.concat(readWorkbook(buf));
-          }
-        }
-      } else if(/\.(xlsx|xls|csv)$/i.test(f.name)){
-        var buf2=await f.arrayBuffer();
-        newLeads=newLeads.concat(readWorkbook(buf2));
-      } else if(/\.txt$/i.test(f.name)){
-        var t=await f.text();
-        newLeads=newLeads.concat(parseWhatsAppText(t, f.name));
-      }
-    }catch(err){ setStatus('File "'+f.name+'" parhne mein masla: '+err.message); }
+    setStatus('File parhi ja rahi hai: '+f.name+' ...');
+    var leads=[], errMsg='';
+    try{ leads=await processFileBlob(f, f.name, 0); }
+    catch(err){ errMsg=err.message||'parhne mein masla'; }
+    try{ await storeFileRecord(f, leads.length, errMsg); }catch(e){}
+    allLeads=allLeads.concat(leads);
+    summary.push(f.name+' → store ho gayi, '+leads.length+' leads nikleen'+(errMsg?(' (note: '+errMsg+')'):''));
   }
-  if(newLeads.length){ addLeads(newLeads); }
-  else setStatus('In files se koi lead nahi mili.');
+  renderFileLib();
+  if(allLeads.length){ addLeads(allLeads); }
+  setStatus(summary.join(' · '));
+}
+
+// ===== IndexedDB Store — data mehfooz, dobara khulne par wapas =====
+var DBP=null;
+function idbOpen(){
+  if(DBP) return DBP;
+  DBP=new Promise(function(resolve, reject){
+    var req=indexedDB.open('gg-property-match', 1);
+    req.onupgradeneeded=function(){
+      var db=req.result;
+      if(!db.objectStoreNames.contains('kv')) db.createObjectStore('kv', {keyPath:'k'});
+      if(!db.objectStoreNames.contains('files')) db.createObjectStore('files', {keyPath:'fid', autoIncrement:true});
+    };
+    req.onsuccess=function(){ resolve(req.result); };
+    req.onerror=function(){ reject(req.error); };
+  });
+  return DBP;
+}
+async function idbPut(store, value){
+  var db=await idbOpen();
+  return new Promise(function(resolve, reject){
+    var tx=db.transaction(store, 'readwrite');
+    tx.objectStore(store).put(value);
+    tx.oncomplete=resolve; tx.onerror=function(){ reject(tx.error); };
+  });
+}
+async function idbGet(store, key){
+  var db=await idbOpen();
+  return new Promise(function(resolve, reject){
+    var rq=db.transaction(store, 'readonly').objectStore(store).get(key);
+    rq.onsuccess=function(){ resolve(rq.result); };
+    rq.onerror=function(){ reject(rq.error); };
+  });
+}
+async function idbAll(store){
+  var db=await idbOpen();
+  return new Promise(function(resolve, reject){
+    var rq=db.transaction(store, 'readonly').objectStore(store).getAll();
+    rq.onsuccess=function(){ resolve(rq.result||[]); };
+    rq.onerror=function(){ reject(rq.error); };
+  });
+}
+async function idbDelete(store, key){
+  var db=await idbOpen();
+  return new Promise(function(resolve, reject){
+    var tx=db.transaction(store, 'readwrite');
+    tx.objectStore(store).delete(key);
+    tx.oncomplete=resolve; tx.onerror=function(){ reject(tx.error); };
+  });
+}
+async function idbClearAll(){
+  var db=await idbOpen();
+  return new Promise(function(resolve, reject){
+    var tx=db.transaction(['kv','files'], 'readwrite');
+    tx.objectStore('kv').clear(); tx.objectStore('files').clear();
+    tx.oncomplete=resolve; tx.onerror=function(){ reject(tx.error); };
+  });
+}
+async function storeFileRecord(file, leadsCount, note){
+  await idbPut('files', { name:file.name, type:file.type||'', size:file.size, date:new Date().toISOString(), leads:leadsCount, note:note||'', blob:file });
+}
+async function persistLeads(){
+  try{ await idbPut('kv', {k:'leads', v:LEADS}); updateStorageInfo(); }catch(e){}
+}
+function fmtSize(n){
+  if(n==null) return '—';
+  if(n<1024) return n+' B';
+  if(n<1048576) return Math.round(n/1024)+' KB';
+  return (Math.round(n/104857.6)/10)+' MB';
+}
+async function updateStorageInfo(){
+  var el=document.getElementById('storageInfo');
+  if(!el) return;
+  var files=[]; try{ files=await idbAll('files'); }catch(e){}
+  var estTxt='';
+  try{
+    if(navigator.storage && navigator.storage.estimate){
+      var est=await navigator.storage.estimate();
+      estTxt=' · Browser store istemal: '+fmtSize(est.usage||0)+' (limit taqreeban '+fmtSize(est.quota||0)+')';
+    }
+  }catch(e){}
+  el.textContent='Stored leads: '+LEADS.length+' · Stored files: '+files.length+estTxt+' — Data isi device ke browser mein mehfooz hai; Firebase (online) store is ke baad wala step hai.';
+}
+async function renderFileLib(){
+  var box=document.getElementById('fileLib');
+  if(!box) return;
+  var files=[];
+  try{ files=await idbAll('files'); }catch(e){}
+  if(!files.length){ box.innerHTML='<p style="color:#888;font-size:13px">Abhi koi file store nahi hui — upar se pehli file dal dein.</p>'; updateStorageInfo(); return; }
+  var html='<table><tr><th>File</th><th>Size</th><th>Leads Nikleen</th><th>Tareekh</th><th></th><th></th></tr>';
+  files.forEach(function(rec){
+    html+='<tr><td>'+esc(rec.name)+'</td><td>'+fmtSize(rec.size)+'</td><td>'+rec.leads+'</td><td>'+esc(String(rec.date||'').slice(0,10))+'</td>'+
+      '<td><button class="btn grey" style="padding:4px 9px;font-size:12px" onclick="downloadStored('+rec.fid+')">Download</button></td>'+
+      '<td><button class="btn grey" style="padding:4px 9px;font-size:12px" onclick="deleteStored('+rec.fid+')">Delete</button></td></tr>';
+  });
+  box.innerHTML=html+'</table>';
+  updateStorageInfo();
+}
+async function downloadStored(fid){
+  var rec=await idbGet('files', fid);
+  if(!rec || !rec.blob) return;
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(rec.blob); a.download=rec.name; a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 4000);
+}
+async function deleteStored(fid){
+  await idbDelete('files', fid);
+  renderFileLib();
+}
+async function clearAllData(){
+  if(!confirm('Sara stored data (leads + files) clear ho jayega. Pakka?')) return;
+  try{ await idbClearAll(); }catch(e){}
+  try{ localStorage.removeItem('ggpm_status'); }catch(e){}
+  LEADS=[]; MATCHES=[]; FILTERED=[];
+  updateStats(); applyFilters(true); renderLeads(); renderFileLib();
+  setStatus('Sara stored data clear ho gaya.');
+}
+async function restoreData(){
+  try{
+    var rec=await idbGet('kv', 'leads');
+    if(rec && rec.v && rec.v.length){
+      LEADS=rec.v;
+      MATCHES=matchLeads(LEADS);
+      updateStats(); buildLocFilter(); applyFilters(true); renderLeads();
+      setStatus('Purana stored data wapas load ho gaya: '+LEADS.length+' leads, '+MATCHES.length+' matches. Nayi file dalne se data aur barh jayega.');
+    }
+  }catch(e){}
+  renderFileLib();
 }
 
 function readWorkbook(buf){
@@ -540,7 +789,8 @@ function addLeads(newLeads){
     buildLocFilter();
     applyFilters(true);
     renderLeads();
-    setStatus('Ho gaya — '+LEADS.length+' leads se '+MATCHES.length+' best matches nikle ('+Math.round((Date.now()-t0)/1000)+' sec). Ab pehle Same Plot aur Score 100 walon se shuru karein.');
+    persistLeads();
+    setStatus('Ho gaya — '+LEADS.length+' leads se '+MATCHES.length+' best matches nikle ('+Math.round((Date.now()-t0)/1000)+' sec) — data store bhi ho gaya hai. Ab pehle Same Plot aur Score 100 walon se shuru karein.');
   }, 60);
 }
 
@@ -640,6 +890,7 @@ function exportExcel(){
   XLSX.writeFile(wb, 'GG_Property_Matches.xlsx');
   setStatus(FILTERED.length+' matches Excel mein export ho gaye.');
 }
+restoreData();
 </script>
 </body>
 </html>
