@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GG Property Match — Buyer Seller Matching App</title>
+<title>Property Match — Buyer Seller Matching App</title>
 <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/libarchive.js@1.3.0/dist/libarchive.min.js"></script>
@@ -59,18 +59,59 @@ footer{text-align:center;color:#888;font-size:12px;padding:18px}
 .mlogo{width:20px;height:20px;border-radius:50%;margin-left:auto}
 .blogo{width:20px;height:20px;border-radius:50%;vertical-align:-5px;margin-right:6px}
 .bottomstrip{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:2px solid #eca805;box-shadow:0 -2px 10px rgba(0,0,0,.08);text-align:center;padding:7px 10px;font-size:13px;color:#5b0f22;z-index:50}
-.bottomstrip img{width:24px;height:24px;border-radius:50%;vertical-align:-7px;margin-right:7px}
+.bottomstrip img{width:18px;height:18px;border-radius:50%;vertical-align:-4px;margin-right:6px}
 body{padding-bottom:52px}
 .hidden{display:none}
 </style>
 </head>
 <body>
+<div id="loginGate" style="display:none;position:fixed;inset:0;background:#5b0f22;z-index:200;align-items:center;justify-content:center;padding:20px">
+<div style="background:#fff;border-radius:18px;max-width:380px;width:100%;padding:28px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.35)">
+<img class="ggimg" style="width:84px;height:84px;border-radius:50%" alt="Global Guru Logo">
+<h2 style="margin:12px 0 4px;color:#5b0f22">Property Match</h2>
+<p style="color:#666;margin:0 0 14px">Aage barhne ke liye apne account se login karein</p>
+<button class="btn gold" style="width:100%;padding:12px;font-size:15px" onclick="ggSignIn()">Google Se Login Karein</button>
+<p id="gateMsg" style="color:#b00020;font-size:13px;margin-top:12px;min-height:16px"></p>
+<p style="color:#5b0f22;font-size:13px;margin-top:6px">Subscription fees <b>Raast</b> se bhejein: <b>0302 7374880</b><br>Phir screenshot WhatsApp <b>0311 624 6000</b> par bhejein — license activate ho jayega.</p>
+<p style="color:#999;font-size:12px;margin:0">Account chahiye? GG — WhatsApp 0311 624 6000</p>
+</div>
+</div>
 <header>
 <h1><img class="ggimg titlelogo" alt="Global Guru Logo"> <span>Property Match</span></h1>
 <p>Data dalo — Excel, WhatsApp ZIP ya Google Sheet — matches khud nikal ayenge</p>
 </header>
 <div class="brandline"><img class="ggimg blogo" alt="GG">Global Guru — Your Digital Partner</div>
 <div class="wrap">
+
+<div class="card" id="userBar" style="display:none;align-items:center;gap:10px;flex-wrap:wrap">
+<span><b>Login:</b> <span id="userEmail"></span> · <span id="userPlan" style="color:#5b0f22"></span></span>
+<span style="margin-left:auto"></span>
+<button class="btn grey" onclick="ggSignOut()">Logout</button>
+</div>
+
+<div class="card" id="adminCard" style="display:none">
+<h2>GG Admin — Adviser License</h2>
+<div class="row">
+<input type="email" id="licEmail" placeholder="Adviser ki Gmail" style="flex:1;min-width:200px">
+<input type="text" id="licBrand" placeholder="Brand naam (masalan: F&B Associate)" style="flex:1;min-width:170px">
+<select id="licPlan"><option>Starter</option><option>Pro</option><option>White-Label</option></select>
+<select id="licMonths"><option value="1">1 Mahina</option><option value="3">3 Mahine</option><option value="6">6 Mahine</option><option value="12">12 Mahine</option></select>
+<button class="btn" onclick="adminAddLicense()">License Banao / Update Karo</button>
+</div>
+<div id="licMsg" style="color:#137333;font-size:13px;margin-top:6px"></div>
+<div id="licList" style="margin-top:10px;overflow-x:auto"></div>
+</div>
+
+<div class="card" id="payCard" style="display:none">
+<h2>Subscription / Payment</h2>
+<p id="payPlanInfo" style="margin:4px 0 10px;color:#5b0f22"></p>
+<div class="row" style="align-items:center">
+<span style="font-size:15px">Fees <b>Raast</b> se is number par bhejein:</span>
+<span style="font-size:20px;font-weight:bold;color:#5b0f22;letter-spacing:1px">0302 7374880</span>
+<button class="btn gold" onclick="copyRaast()">Number Copy Karo</button>
+</div>
+<p style="color:#666;font-size:13px;margin-top:10px">1) Apni bank app se Raast transfer karein — bhejne se pehle account ka naam app mein nazar aa jayega, tasdeeq kar lein · 2) Payment ka screenshot GG ke WhatsApp <b>0311 624 6000</b> par bhejein · 3) Tasdeeq ke baad aap ka license activate / renew ho jayega.</p>
+</div>
 
 <div class="card">
 <h2>1 — Apna Brand Naam (messages mein yehi jayega)</h2>
@@ -751,6 +792,7 @@ async function clearAllData(){
   if(cbtn){ cbtn.textContent='Sara Stored Data Clear Karo'; }
   try{ await idbClearAll(); }catch(e){}
   try{ localStorage.removeItem('ggpm_status'); }catch(e){}
+  if(window.cloudOnClear){ try{ cloudOnClear(); }catch(e){} }
   LEADS=[]; MATCHES=[]; FILTERED=[];
   updateStats(); applyFilters(true); renderLeads(); renderFileLib();
   setStatus('Sara stored data clear ho gaya.');
@@ -826,11 +868,12 @@ function loadDemo(){
     {id:'D-B2',intent:'buyer',type:'House',location:'New Shalimar Colony',sector:'',plotNo:'',sizeMarla:5,price:15000000,name:'Buyer — Shalimar House',phone:'+923077777777',date:'',source:'Demo',detail:'New Shalimar 5 marla house chahiye budget 150 lac'},
     {id:'D-S3',intent:'seller',type:'House',location:'New Shalimar Colony',sector:'',plotNo:'',sizeMarla:5,price:14500000,name:'Seller — Shalimar House',phone:'+923088888888',date:'',source:'Demo',detail:'New Shalimar 5 marla corner house for sale demand 145 lac'}
   ];
-  LEADS=[]; addLeads(demo);
+  window.__demoMode=true; addLeads(demo);
 }
 
 function addLeads(newLeads){
   LEADS = dedupeLeads(LEADS.concat(newLeads));
+  if(window.cloudOnLeadsAdded && !window.__demoMode){ try{ cloudOnLeadsAdded(newLeads); }catch(e){} }
   setStatus('Leads mil gayeen: '+LEADS.length+' — matching chal rahi hai, thora intezar karein...');
   setTimeout(function(){
     var t0=Date.now();
@@ -840,6 +883,7 @@ function addLeads(newLeads){
     applyFilters(true);
     renderLeads();
     var baseMsg='Ho gaya — '+LEADS.length+' leads se '+MATCHES.length+' best matches nikle ('+Math.round((Date.now()-t0)/1000)+' sec)';
+    if(window.__demoMode){ window.__demoMode=false; setStatus(baseMsg+' — ye sirf DEMO hai, store nahi hua; aap ka asal data mehfooz hai.'); return; }
     persistLeads().then(function(ok){
       setStatus(baseMsg+(ok? ' — data store bhi ho gaya hai.' : ' — ⚠ LEKIN data store NAHI hua: '+(window.__storeErr||'unknown error')+' — ye error mujhe bhejein.')+' Ab pehle Same Plot aur Score 100 walon se shuru karein.');
     });
@@ -931,10 +975,10 @@ function exportExcel(){
       'Seller Verify Message':sellerVerifyMsg(m, brand),'Buyer Forward Message':buyerForwardMsg(m, brand),'Status':getStatus(m),'Note':''};
   });
   var ws=XLSX.utils.json_to_sheet(rows);
-  XLSX.utils.sheet_add_aoa(ws, [['GG Property Match \u2022 Powered By Global Guru']], {origin:'A1'});
+  XLSX.utils.sheet_add_aoa(ws, [['Property Match \u2022 Powered By Global Guru']], {origin:'A1'});
   // json_to_sheet already placed data from A1; rebuild properly with brand row:
   var headers=Object.keys(rows[0]);
-  var aoa=[['GG Property Match \u2022 Powered By Global Guru'], headers].concat(rows.map(function(r){ return headers.map(function(h){ return r[h]; }); }));
+  var aoa=[['Property Match \u2022 Powered By Global Guru'], headers].concat(rows.map(function(r){ return headers.map(function(h){ return r[h]; }); }));
   ws=XLSX.utils.aoa_to_sheet(aoa);
   ws['!merges']=[{s:{r:0,c:0}, e:{r:0,c:headers.length-1}}];
   var wb=XLSX.utils.book_new();
@@ -943,6 +987,181 @@ function exportExcel(){
   setStatus(FILTERED.length+' matches Excel mein export ho gaye.');
 }
 restoreData();
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script>
+// ===== GG Property Match — SaaS (Firebase login + license + cloud data) =====
+var FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCFcv8tdksn4QGzdME4Y_wqpr3DBLyMBDY",
+  authDomain: "gg-property-match.firebaseapp.com",
+  projectId: "gg-property-match",
+  storageBucket: "gg-property-match.firebasestorage.app",
+  messagingSenderId: "336120402191",
+  appId: "1:336120402191:web:fc4cdc8cb80ba2ea02ae7a"
+};
+var GG_ADMIN_EMAIL = 'globalgurupro@gmail.com';
+var FB = { ready:false, auth:null, db:null, user:null, license:null };
+
+function fbConfigured(){ return !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey.indexOf('__FB_')!==0); }
+function showGate(msg){
+  var g=document.getElementById('loginGate'); if(g) g.style.display='flex';
+  if(msg) document.getElementById('gateMsg').textContent=msg;
+}
+function hideGate(){ var g=document.getElementById('loginGate'); if(g) g.style.display='none'; }
+function ggSignIn(){
+  if(!FB.auth){ document.getElementById('gateMsg').textContent='Setup abhi mukammal nahi — GG se rabta karein.'; return; }
+  var prov=new firebase.auth.GoogleAuthProvider();
+  FB.auth.signInWithPopup(prov).catch(function(e){ document.getElementById('gateMsg').textContent='Login mein masla: '+(e.message||e); });
+}
+function ggSignOut(){ if(FB.auth) FB.auth.signOut(); }
+function copyRaast(){ if(navigator.clipboard) navigator.clipboard.writeText('03027374880'); try{ setStatus('Raast number copy ho gaya: 0302 7374880'); }catch(e){} }
+
+function leadDocId(l){ return String((l&&l.id)||'x').replace(/[\/]/g,'-'); }
+function sanitizeLead(l){
+  var o={};
+  Object.keys(l||{}).forEach(function(k){
+    var v=l[k];
+    if(v instanceof Date) v=v.toISOString();
+    if(v===undefined || v===null) v='';
+    if(typeof v==='object') v=JSON.stringify(v);
+    o[k]=v;
+  });
+  return o;
+}
+function unsanitizeLead(o){
+  if(o && o.date && typeof o.date==='object' && o.date.toDate){ try{ o.date=o.date.toDate().toISOString().slice(0,10); }catch(e){} }
+  return o;
+}
+
+window.cloudOnLeadsAdded = async function(newLeads){
+  if(!FB.ready || !FB.user || !newLeads || !newLeads.length) return;
+  try{
+    var col=FB.db.collection('users').doc(FB.user.uid).collection('leads');
+    for(var i=0;i<newLeads.length;i+=400){
+      var batch=FB.db.batch();
+      newLeads.slice(i,i+400).forEach(function(l){ var s=sanitizeLead(l); batch.set(col.doc(leadDocId(s)), s); });
+      await batch.commit();
+    }
+  }catch(e){ console.log('cloud sync error', e); }
+};
+window.cloudOnClear = async function(){
+  if(!FB.ready || !FB.user) return;
+  try{
+    var col=FB.db.collection('users').doc(FB.user.uid).collection('leads');
+    var snap=await col.get(); var refs=[]; snap.forEach(function(d){ refs.push(d.ref); });
+    for(var i=0;i<refs.length;i+=400){
+      var batch=FB.db.batch();
+      refs.slice(i,i+400).forEach(function(r){ batch.delete(r); });
+      await batch.commit();
+    }
+  }catch(e){ console.log('cloud clear error', e); }
+};
+
+async function cloudLoadLeads(){
+  var snap=await FB.db.collection('users').doc(FB.user.uid).collection('leads').get();
+  var arr=[]; snap.forEach(function(d){ arr.push(unsanitizeLead(d.data())); });
+  return arr;
+}
+async function cloudBootstrap(){
+  try{
+    var cloud=await cloudLoadLeads();
+    if(cloud.length){
+      LEADS=cloud; MATCHES=matchLeads(LEADS);
+      updateStats(); buildLocFilter(); applyFilters(true); renderLeads();
+      persistLeads();
+      setStatus('Cloud se aap ka data load ho gaya: '+LEADS.length+' leads, '+MATCHES.length+' matches.');
+    } else if(LEADS.length){
+      await window.cloudOnLeadsAdded(LEADS);
+      setStatus('Aap ka mojooda data cloud par mehfooz kar diya gaya hai ('+LEADS.length+' leads). Ab ye har device par login se milega.');
+    }
+  }catch(e){ console.log('cloud bootstrap error', e); }
+}
+
+function renderUserBar(){
+  var bar=document.getElementById('userBar'); if(!bar) return;
+  if(!FB.user){ bar.style.display='none'; document.getElementById('adminCard').style.display='none'; var pc0=document.getElementById('payCard'); if(pc0) pc0.style.display='none'; return; }
+  bar.style.display='flex';
+  document.getElementById('userEmail').textContent=FB.user.email;
+  var info='License check ho raha hai...';
+  if(FB.user.email===GG_ADMIN_EMAIL) info='GG Admin';
+  else if(FB.license) info=(FB.license.plan||'Plan')+' · Expiry: '+(FB.license.expiry||'—');
+  document.getElementById('userPlan').textContent=info;
+  var pc=document.getElementById('payCard'); if(pc) pc.style.display='';
+  var ppi=document.getElementById('payPlanInfo'); if(ppi) ppi.textContent='Aap ka mojooda plan: '+info;
+  var isAdmin=(FB.user.email===GG_ADMIN_EMAIL);
+  document.getElementById('adminCard').style.display=isAdmin?'':'none';
+  if(isAdmin) loadLicenseList();
+}
+
+async function adminAddLicense(){
+  var email=document.getElementById('licEmail').value.trim().toLowerCase();
+  var plan=document.getElementById('licPlan').value;
+  var months=parseInt(document.getElementById('licMonths').value||'1',10);
+  var brand=document.getElementById('licBrand').value.trim();
+  if(!email){ document.getElementById('licMsg').textContent='Pehle adviser ki Gmail likhein.'; return; }
+  var exp=new Date(); exp.setMonth(exp.getMonth()+months);
+  var expStr=exp.toISOString().slice(0,10);
+  try{
+    await FB.db.collection('licenses').doc(email).set({ active:true, plan:plan, brand:brand||'', expiry:expStr, updatedAt:new Date().toISOString() });
+    document.getElementById('licMsg').textContent='License tayyar: '+email+' ('+plan+', expiry '+expStr+')';
+    loadLicenseList();
+  }catch(e){ document.getElementById('licMsg').textContent='Masla: '+e.message; }
+}
+async function adminToggleLicense(email, active){
+  try{ await FB.db.collection('licenses').doc(email).update({ active: active }); loadLicenseList(); }
+  catch(e){ console.log(e); }
+}
+async function loadLicenseList(){
+  var box=document.getElementById('licList'); if(!box) return;
+  try{
+    var snap=await FB.db.collection('licenses').get();
+    if(snap.empty){ box.innerHTML='<p style="color:#888">Abhi koi license nahi bana.</p>'; return; }
+    var html='<table><tr><th>Email</th><th>Plan</th><th>Brand</th><th>Expiry</th><th>Active</th><th></th></tr>';
+    snap.forEach(function(d){
+      var v=d.data();
+      html+='<tr><td>'+d.id+'</td><td>'+(v.plan||'')+'</td><td>'+(v.brand||'')+'</td><td>'+(v.expiry||'')+'</td><td>'+(v.active?'Han':'Nahi')+'</td><td><button class="btn grey" onclick="adminToggleLicense(\''+d.id+'\','+(!v.active)+')">'+(v.active?'Band Karo':'Chalu Karo')+'</button></td></tr>';
+    });
+    html+='</table>';
+    box.innerHTML=html;
+  }catch(e){ box.innerHTML='List load nahi hui: '+e.message; }
+}
+
+async function checkAccess(user){
+  if(user.email===GG_ADMIN_EMAIL){ FB.license={plan:'Admin'}; return true; }
+  var doc=await FB.db.collection('licenses').doc(user.email.toLowerCase()).get();
+  if(!doc.exists) return false;
+  var lic=doc.data(); FB.license=lic;
+  if(!lic.active) return false;
+  if(lic.expiry && lic.expiry < new Date().toISOString().slice(0,10)) return false;
+  if(lic.brand){ var bi=document.getElementById('brandInput'); if(bi){ bi.value=lic.brand; } try{ brand=lic.brand; }catch(e){} }
+  return true;
+}
+
+function initFirebase(){
+  if(!fbConfigured() || typeof firebase==='undefined'){
+    showGate('Setup abhi mukammal nahi — GG se rabta karein (WhatsApp 0311 624 6000).');
+    return;
+  }
+  try{ firebase.initializeApp(FIREBASE_CONFIG); }catch(e){}
+  FB.auth=firebase.auth(); FB.db=firebase.firestore();
+  FB.auth.onAuthStateChanged(async function(user){
+    FB.user=user||null;
+    if(!user){ FB.ready=false; renderUserBar(); showGate('Aage barhne ke liye apne Google account se login karein.'); return; }
+    var ok=false;
+    try{ ok=await checkAccess(user); }
+    catch(e){ showGate('License check mein masla: '+(e.message||e)); renderUserBar(); return; }
+    if(!ok){
+      FB.ready=false; renderUserBar();
+      showGate('Aap ka account ('+user.email+') abhi active nahi hai ya subscription khatam ho chuki hai. GG se rabta karein — WhatsApp 0311 624 6000.');
+      return;
+    }
+    FB.ready=true; hideGate(); renderUserBar(); cloudBootstrap();
+  });
+}
+window.addEventListener('load', function(){ setTimeout(initFirebase, 400); });
+
 </script>
 </body>
 </html>
