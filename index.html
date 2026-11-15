@@ -324,6 +324,7 @@ footer{font-size:11px;padding:14px}
 <div id="payList" style="overflow-x:auto"></div>
 <h2 style="margin-top:22px">Adviser Licenses</h2>
 <div id="licList" style="margin-top:10px;overflow-x:auto"></div>
+<div style="margin-top:16px"><h3 style="color:#5b0f22;font-size:14.5px;margin-bottom:8px">Khamosh Advisers — Win-Back</h3><button class="btn grey" onclick="loadSilent()">Khamosh Advisers Dekho (4+ din se gayab)</button><div id="silentBox" style="margin-top:10px;overflow-x:auto"></div></div>
 <h2 style="margin-top:22px">Naya License / Update</h2>
 <div class="row">
 <input type="email" id="licEmail" placeholder="Adviser ki Gmail" style="flex:1;min-width:200px">
@@ -344,7 +345,7 @@ footer{font-size:11px;padding:14px}
 <li>✓ Matching system (Buyer ↔ Seller)</li><li>✓ Apna data upload — Excel / WhatsApp / Sheet</li><li>✓ Data Check (ghalat cutting ki pehchan)</li><li>✓ WhatsApp Verify / Forward messages</li><li>✓ 1 user</li><li class="no">Deal Pipeline</li><li class="no">Number Chhupana</li><li class="no">Rent Matching · Excel Export</li></ul></div>
 <div class="plan hot"><h3>Pro ⭐</h3><div class="fee">Rs 3,999 <span>/ mahina</span></div><ul>
 <li>✓ Starter ka sab kuch</li><li>✓ Deal Pipeline (Verify → Forward → Visit → Deal Band)</li><li>✓ Number Chhupana (buyer ko seller ka number nahi jata)</li><li>✓ Manual Lead Add</li><li>✓ Rent Matching</li><li>✓ Excel Export</li><li>✓ Zyada data limit</li></ul></div>
-<div class="plan"><h3>White-Label</h3><div class="fee">Rs 9,999 <span>/ mahina + Setup & Branding Rs 14,999 (one-time)</span></div><ul>
+<div class="plan"><h3>White-Label</h3><div class="fee">Rs 9,999 <span>/ mahina + Setup & Branding Rs 9,999 (one-time)</span></div><ul>
 <li>✓ Pro ka sab kuch</li><li>✓ Aap ke apne naam / logo par app</li><li>✓ Team ke accounts</li><li>✓ Unlimited data</li><li>✓ Priority support</li></ul></div>
 </div>
 <p style="color:#888;font-size:12.5px;margin:0 0 6px">Plan select karke neeche diye gaye number par <b>Raast ya JazzCash</b> se fees bhejein aur screenshot upload kar dein — tasdeeq ke baad aap ka plan active ho jayega.</p>
@@ -412,6 +413,9 @@ footer{font-size:11px;padding:14px}
 <div class="stat statbtn" onclick="statGo('shakki')"><b id="stBad" style="color:#b00020">0</b><span>Shakki Data</span></div>
 </div>
 
+<div class="card viewcard" id="dealCard" style="display:none;border:2px solid #eca805;background:linear-gradient(180deg,#fffdf4,#ffffff)"></div>
+<div class="card viewcard" id="todayCard" style="display:none"></div>
+<div class="card viewcard" id="progCard" style="display:none"></div>
 <div class="card viewcard" id="matchesCard" style="margin-top:14px">
 <h2>Matches</h2>
 <div class="row" style="margin-bottom:10px">
@@ -855,7 +859,7 @@ function canDo(f){
 }
 function visMatches(){ return canDo('rent')? MATCHES : MATCHES.filter(function(m){ return m.kind!=='rent'; }); }
 var CURVIEW='home';
-var VIEWS={home:['dataCard','statsBox','matchesCard'],leads:['manualCard','leadsCard'],pipeline:['pipelineCard'],check:['masterCard'],store:['storedCard'],settings:['settingsCard','ggCard'],sub:['payCard'],admin:['adminCard']};
+var VIEWS={home:['dataCard','statsBox','dealCard','todayCard','progCard','matchesCard'],leads:['manualCard','leadsCard'],pipeline:['pipelineCard'],check:['masterCard'],store:['storedCard'],settings:['settingsCard','ggCard'],sub:['payCard'],admin:['adminCard']};
 function showView(v){
   if(v==='admin' && ggMode()!=='admin') v='home';
   CURVIEW=v; var bb=document.getElementById('backBar'); if(bb) bb.style.display=(v==='home')?'none':'block';
@@ -1296,6 +1300,7 @@ function updateStats(){
   document.getElementById('stBad').textContent=LEADS.filter(function(l){ var f=leadFlag(l); return f && f.level==='bad'; }).length;
   renderBadBox();
   updateMenuBadges();
+  try{ renderDeal(); renderToday(); renderProg(); }catch(e){}
 }
 function buildLocFilter(){
   var sel=document.getElementById('fLoc');
@@ -1318,7 +1323,7 @@ function saveStatusRec(m, rec){
   var all={}; try{ all=JSON.parse(localStorage.getItem('ggpm_status')||'{}'); }catch(e){}
   all[statusKey(m)]=rec; try{ localStorage.setItem('ggpm_status', JSON.stringify(all)); }catch(e){}
 }
-function setMatchStatus(m, val){ if(!m) return; var r=statusRec(m); r.s=val; saveStatusRec(m, r); renderPipeline(); }
+function setMatchStatus(m, val){ if(!m) return; var r=statusRec(m); r.s=val; saveStatusRec(m, r); renderPipeline(); try{ renderToday(); renderProg(); }catch(e){} }
 function setCommission(m, val){ if(!m) return; var r=statusRec(m); r.c=val; saveStatusRec(m, r); renderPipeline(); }
 function stageSelectHtml(m, idx, arrName){
   var st=getStatus(m);
@@ -1952,6 +1957,106 @@ async function loadProfile(){
     var sw=document.getElementById('setWA'); if(sw && prof.wa) sw.value=prof.wa;
     var sc=document.getElementById('setCity'); if(sc && prof.city) sc.value=prof.city;
   }
+  if(FB.user && FB.db){ try{ FB.db.collection('users').doc(FB.user.uid).collection('meta').doc('profile').set({ email: FB.user.email||'', lastSeen: new Date().toISOString() }, { merge:true }); }catch(e){} }
+}
+
+
+// ===== Retention — Aaj Ki Deal / Aaj Ki List / Progress / Win-Back =====
+function dealRank(m){ return (m.tag==='Same Plot'?0:1)*100000+(100-Math.min(100,m.score||0))*100; }
+function leadLine(l){ return esc(l.location||'')+(l.sector?' • Sector '+esc(l.sector):'')+(l.plotNo?' • Plot '+esc(l.plotNo):'')+' • '+esc(sizeLabel(l.sizeMarla))+' • '+esc(l.type||''); }
+function renderDeal(){
+  var card=document.getElementById('dealCard'); if(!card) return;
+  var pool=visMatches().slice();
+  if(!pool.length){ card.style.display='none'; return; }
+  pool.sort(function(a,b){ return dealRank(a)-dealRank(b); });
+  var today=localDateStr(); var st=null; try{ st=JSON.parse(localStorage.getItem('ggpm_deal')||'null'); }catch(e){}
+  if(!st||typeof st!=='object') st={day:'',key:'',seen:[]};
+  if(!Array.isArray(st.seen)) st.seen=[];
+  var pick=null, i;
+  if(st.day===today && st.key){ for(i=0;i<pool.length;i++){ if(statusKey(pool[i])===st.key){ pick=pool[i]; break; } } }
+  if(!pick){
+    for(i=0;i<pool.length;i++){ if(st.seen.indexOf(statusKey(pool[i]))<0){ pick=pool[i]; break; } }
+    if(!pick){ st.seen=[]; pick=pool[0]; }
+    st.day=today; st.key=statusKey(pick); if(st.seen.indexOf(st.key)<0) st.seen.push(st.key);
+    try{ localStorage.setItem('ggpm_deal', JSON.stringify(st)); }catch(e){}
+  }
+  var perfect=(pick.tag==='Same Plot'||pick.score>=100);
+  var viewer=(ggMode()==='viewer');
+  var why=[];
+  if(pick.tag==='Same Plot') why.push('Buyer aur seller aik hi plot par mile hain');
+  if(pick.score>=100) why.push('Size, budget aur location — sab exact match');
+  if(!why.length) why.push('Aaj ke matches mein sab se mazboot');
+  var btns='';
+  if(viewer){ btns='<div class="note" style="margin:9px 0 0">Ye sirf preview hai — number aur WhatsApp ke liye plan active karein.</div>'; }
+  else{
+    btns='<div class="row" style="margin-top:9px"><a class="btn green" style="text-decoration:none" target="_blank" rel="noopener" href="'+waLink(pick.seller.phone, sellerVerifyMsg(pick, brand))+'">Seller Ko Verify Karein</a>'
+       + '<a class="btn gold" style="text-decoration:none" target="_blank" rel="noopener" href="'+waLink(pick.buyer.phone, buyerForwardMsg(pick, brand))+'">Buyer Ko Forward Karein</a></div>';
+  }
+  card.style.display='';
+  card.innerHTML='<h2>'+(perfect?'Aaj Ki Perfect Deal':'Aaj Ki Best Deal')+' <span class="badge">Score '+pick.score+'</span> <span class="badge" style="background:#eca805;color:#222">'+esc(pick.tag)+'</span></h2>'
+    +'<div class="side" style="margin-bottom:8px"><h4>Buyer</h4><b>'+esc(pick.buyer.name||'—')+'</b> • '+(viewer?maskPhone(pick.buyer.phone):esc(pick.buyer.phone||''))+'<br>'+leadLine(pick.buyer)+'<br>Budget: <b>'+esc(moneyFmt(pick.buyer.price))+'</b></div>'
+    +'<div class="side"><h4>Seller</h4><b>'+esc(pick.seller.name||'—')+'</b> • '+(viewer?maskPhone(pick.seller.phone):esc(pick.seller.phone||''))+'<br>'+leadLine(pick.seller)+'<br>Demand: <b>'+esc(moneyFmt(pick.seller.price))+'</b></div>'
+    +'<p style="margin-top:9px;color:#5b0f22"><b>Ye deal khaas kyun hai?</b> '+why.join(' • ')+'</p>'
+    + btns
+    +'<p style="color:#888;font-size:11.5px;margin-top:8px">Har roz aik nayi deal yahan mile gi — jo dekh li, woh dobara nahi ayegi.</p>';
+}
+var TODAYP=[];
+function renderToday(){
+  var card=document.getElementById('todayCard'); if(!card) return;
+  if(!MATCHES.length){ card.style.display='none'; return; }
+  var pend=visMatches().filter(function(m){ return !getStatus(m); });
+  pend.sort(function(a,b){ return dealRank(a)-dealRank(b); });
+  card.style.display='';
+  if(!pend.length){ card.innerHTML='<h2>Aaj Ki List</h2><div class="note" style="margin:0">Aaj ki list mukammal hai — saare matches par kaam ho chuka hai. Naya data dalain ge to nayi list ban jayegi.</div>'; return; }
+  TODAYP=pend.slice(0,3);
+  var rows=TODAYP.map(function(m,i){
+    return '<div class="side" style="margin-bottom:8px"><b>'+(i+1)+'. '+esc(m.buyer.location||'')+'</b>'+(m.seller.sector?' • Sector '+esc(m.seller.sector):'')+(m.seller.plotNo?' • Plot '+esc(m.seller.plotNo):'')+' • '+esc(sizeLabel(m.seller.sizeMarla||m.buyer.sizeMarla))+' • Score '+m.score+'<div style="margin-top:6px">'+stageSelectHtml(m, i, 'TODAYP')+'</div></div>';
+  }).join('');
+  card.innerHTML='<h2>Aaj Ki List — Sirf '+TODAYP.length+' Kaam</h2>'+rows+'<p style="color:#888;font-size:11.5px">Stage badalte jayein — list khud chhoti hoti jayegi. List khatam, din mukammal.</p>';
+}
+function renderProg(){
+  var card=document.getElementById('progCard'); if(!card) return;
+  var gn=document.querySelector('#dataCard .note'); if(gn) gn.style.display=MATCHES.length?'none':'';
+  if(!LEADS.length){ card.style.display='none'; return; }
+  var all={}; try{ all=JSON.parse(localStorage.getItem('ggpm_status')||'{}'); }catch(e){}
+  var nv=0,nf=0,nd=0;
+  Object.keys(all).forEach(function(k){ var v=all[k]; var s=(typeof v==='string')?v:((v&&v.s)||''); s=OLD_STAGE_MAP[s]||s; if(s) nv++; if(s==='Forward Ho Gaya'||s==='Visit Tay'||s==='Deal Band') nf++; if(s==='Deal Band') nd++; });
+  card.style.display='';
+  card.innerHTML='<h2>Aap Ki Progress</h2><div class="stats" style="margin:0">'
+    +'<div class="stat"><b>'+MATCHES.length+'</b><span>Kul Matches</span></div>'
+    +'<div class="stat"><b>'+nv+'</b><span>Par Kaam Shuru</span></div>'
+    +'<div class="stat"><b>'+nf+'</b><span>Forward Hue</span></div>'
+    +'<div class="stat"><b>'+nd+'</b><span>Deals Band</span></div></div>'
+    +'<p style="color:#888;font-size:11.5px;margin-top:8px">Aap ki '+LEADS.length+' leads GG cloud par mehfooz hain — jitna zyada data, utne zyada matches.</p>';
+}
+async function loadSilent(){
+  var box=document.getElementById('silentBox'); if(!box) return;
+  if(!FB.db){ box.innerHTML='<p style="color:#888">Pehle login karein.</p>'; return; }
+  box.innerHTML='<p style="color:#888">Check ho raha hai…</p>';
+  try{
+    var licMap={};
+    var lsnap=await FB.db.collection('licenses').get();
+    lsnap.forEach(function(d){ licMap[(d.id||'').toLowerCase()]=d.data(); });
+    var snap=await FB.db.collectionGroup('meta').get();
+    var rows=[];
+    snap.forEach(function(d){
+      if(d.id!=='profile') return;
+      var v=d.data()||{}; if(!v.lastSeen||!v.email) return;
+      var days=Math.floor((Date.now()-new Date(v.lastSeen).getTime())/86400000);
+      if(days>=4) rows.push({email:String(v.email).toLowerCase(), brand:v.brand||'', days:days, last:String(v.lastSeen).slice(0,10)});
+    });
+    if(!rows.length){ box.innerHTML='<p style="color:#137333">Koi khamosh adviser nahi mila — ya sab active hain, ya last-seen data abhi jama ho raha hai (har adviser ke agle login se).</p>'; return; }
+    rows.sort(function(a,b){ return b.days-a.days; });
+    var html='<table><tr><th>Adviser</th><th>Aakhri Login</th><th>Khamoshi</th><th></th></tr>';
+    rows.forEach(function(r){
+      var lic=licMap[r.email]||{};
+      var phone=lic.phone||'';
+      var msg='Assalamualaikum, Global Guru ki taraf se — aap '+r.days+' din se Property Match par nahi aye. Aap ka saara data bilkul mehfooz hai aur aap ke matches aap ka intezar kar rahe hain. App kholein: https://globalgurubusiness.github.io/gg-property-match/';
+      var btn=phone? '<a class="btn green" style="padding:4px 9px;font-size:12px;text-decoration:none" target="_blank" rel="noopener" href="'+waLink(phone, msg)+'">Win-Back Message</a>' : '<span style="color:#888">number nahi</span>';
+      html+='<tr><td>'+esc(r.brand||lic.brand||r.email)+'<br><span style="color:#888">'+esc(r.email)+'</span></td><td>'+esc(r.last)+'</td><td>'+r.days+' din</td><td>'+btn+'</td></tr>';
+    });
+    box.innerHTML=html+'</table>';
+  }catch(e){ box.innerHTML='<p style="color:#b00020">Activity parhne mein masla: '+esc(e.message||String(e))+'</p>'; }
 }
 
 function initFirebase(){
