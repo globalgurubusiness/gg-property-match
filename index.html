@@ -94,6 +94,56 @@ body{padding-bottom:52px}
   footer{font-size:11px;padding:14px 8px}
   .bottomstrip{font-size:11.5px;padding:6px}
 }
+
+/* ===== v12: menu drawer, views, viewer mode, plans, khata ===== */
+#menuBtn{position:fixed;top:12px;left:12px;z-index:130;width:46px;height:46px;border-radius:50%;border:2px solid #eca805;background:#5b0f22;color:#fff;font-size:21px;cursor:pointer;box-shadow:0 3px 12px rgba(0,0,0,.35)}
+#ggOverlay{position:fixed;inset:0;background:rgba(20,5,10,.55);z-index:140;display:none}
+#ggDrawer{position:fixed;top:0;left:0;bottom:0;width:292px;max-width:86vw;background:#fff;z-index:150;transform:translateX(-105%);transition:transform .25s ease;overflow-y:auto;padding:14px 12px 20px;box-shadow:4px 0 24px rgba(0,0,0,.25)}
+#ggDrawer.open{transform:translateX(0)}
+.dhead{display:flex;align-items:center;gap:9px;border-bottom:2px solid #f3e3b3;padding-bottom:10px;margin-bottom:10px}
+.dhead b{color:#5b0f22;font-size:15.5px}
+.dhead span{font-size:12px;color:#888}
+.dhead .dx{margin-left:auto;background:#f3ece2;border:none;width:32px;height:32px;border-radius:50%;font-size:15px;cursor:pointer}
+.ditem{display:flex;align-items:center;gap:8px;width:100%;text-align:left;background:#fff;border:1px solid #eee;border-radius:11px;padding:11px 12px;font-size:14.5px;font-weight:600;color:#333;cursor:pointer;margin-bottom:7px}
+.ditem:hover{background:#faf6ef}
+.ditem.act{background:#5b0f22;color:#fff;border-color:#5b0f22}
+.dbadge{margin-left:auto;background:#eca805;color:#222;font-size:11.5px;font-weight:800;border-radius:20px;padding:2px 9px}
+.dlock{margin-left:auto;font-size:12px}
+.dcustom{background:linear-gradient(135deg,#5b0f22,#7a1530);border-radius:13px;padding:13px;margin:13px 0;color:#fff}
+.dcustom b{color:#eca805;font-size:14.5px;display:block;margin-bottom:4px}
+.dcustom p{font-size:12.5px;opacity:.92;margin:0 0 9px}
+.dcustom a{display:block;text-align:center;background:#1faa55;color:#fff;font-weight:700;padding:9px;border-radius:9px;text-decoration:none;font-size:13.5px}
+.drabta{border:1px dashed #c9a227;border-radius:13px;padding:12px;background:#fffaf0}
+.drabta b{color:#5b0f22;font-size:14px;display:block;margin-bottom:8px}
+.drabta .wa{display:block;text-align:center;background:#1faa55;color:#fff;font-weight:700;padding:9px;border-radius:9px;text-decoration:none;font-size:13.5px;margin-bottom:9px}
+.drabta .socs{display:flex;flex-wrap:wrap;gap:6px}
+.drabta .socs a{flex:1 1 30%;text-align:center;background:#fff;border:1px solid #e5ddd2;color:#5b0f22;font-weight:700;font-size:12px;padding:7px 2px;border-radius:8px;text-decoration:none}
+#viewerBar{display:none;background:#eca805;color:#3a2a00;border-radius:12px;padding:11px 14px;margin-bottom:14px;font-size:13.5px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+#viewerBar b{color:#5b0f22}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+@media(max-width:640px){.plans{grid-template-columns:1fr}}
+.plan{border:2px solid #e5ddd2;border-radius:13px;padding:13px;background:#fff}
+.plan.hot{border-color:#eca805;background:#fffaf0}
+.plan h3{color:#5b0f22;font-size:15.5px;margin-bottom:2px}
+.plan .fee{font-size:19px;font-weight:800;color:#5b0f22}
+.plan .fee span{font-size:12px;color:#777;font-weight:600}
+.plan ul{list-style:none;margin:9px 0 0;padding:0}
+.plan li{font-size:12.8px;color:#444;padding:3.5px 0;border-bottom:1px dashed #f0e9dc}
+.plan li:last-child{border-bottom:none}
+.plan li.no{color:#b3a89a;text-decoration:line-through}
+.khataStats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:12px}
+.phblur{filter:blur(4px);user-select:none}
+#imgModal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:300;display:none;align-items:center;justify-content:center;padding:16px;cursor:zoom-out}
+#imgModal img{max-width:96vw;max-height:92vh;border-radius:10px}
+.ageTxt{font-size:11.5px;color:#999}
+.lockNote{background:#fff8e1;border:1px solid #eca805;border-radius:10px;padding:12px;font-size:13.5px}
+.customStrip{background:linear-gradient(135deg,#5b0f22,#7a1530);border-radius:16px;padding:16px;margin-bottom:14px;color:#fff;display:flex;gap:12px;align-items:center;flex-wrap:wrap;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+.customStrip b{color:#eca805}
+.customStrip a{background:#1faa55;color:#fff;font-weight:700;padding:10px 16px;border-radius:10px;text-decoration:none;font-size:14px;margin-left:auto}
+header p{opacity:1;color:#ffd968;font-weight:600}
+body{font-size:15px}
+.card h2{font-size:17.5px}
+
 </style>
 </head>
 <body>
@@ -101,7 +151,7 @@ body{padding-bottom:52px}
 <div style="background:#fff;border-radius:18px;max-width:380px;width:100%;padding:28px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.35)">
 <img class="ggimg" style="width:84px;height:84px;border-radius:50%" alt="Global Guru Logo">
 <h2 style="margin:12px 0 4px;color:#5b0f22">Property Match</h2>
-<p style="color:#666;margin:0 0 14px">Aage barhne ke liye apne account se login karein</p>
+<p style="color:#666;margin:0 0 14px">Aage barhne ke liye apne account se login karein<br><span style="font-size:12.5px;color:#999">Login ke baad app ko <b>Viewer Mode</b> mein dekh sakte hain — subscription par saare features khul jayenge.</span></p>
 <button class="btn gold" style="width:100%;padding:12px;font-size:15px" onclick="ggSignIn()">Google Se Login Karein</button>
 <p id="gateMsg" style="color:#b00020;font-size:13px;margin-top:12px;min-height:16px"></p>
 <p style="color:#5b0f22;font-size:13px;margin-top:6px">Subscription fees <b>Raast</b> se bhejein: <b>0302 7374880</b><br>Phir screenshot WhatsApp <b>0311 624 6000</b> par bhejein — ya login karke neeche se yahin upload kar dein — license activate ho jayega.</p>
@@ -142,6 +192,24 @@ body{padding-bottom:52px}
 <div class="tagline">Global Guru — Your Digital Partner<br>Multan, Pakistan</div>
 </div>
 </aside>
+
+<button id="menuBtn" onclick="toggleDrawer(true)" title="Menu">☰</button>
+<div id="ggOverlay" onclick="toggleDrawer(false)"></div>
+<aside id="ggDrawer">
+<div class="dhead"><img class="ggimg slogo" alt="GG"><div><b id="dBrand">Property Match</b><br><span id="dUser">Login nahi hua</span></div><button class="dx" onclick="toggleDrawer(false)">✕</button></div>
+<button class="ditem" data-v="home" onclick="showView('home')">🏠 Home — Data &amp; Matches <span class="dbadge" id="bdMatches" style="display:none"></span></button>
+<button class="ditem" data-v="leads" onclick="showView('leads')">📋 Meri Leads <span class="dbadge" id="bdLeads" style="display:none"></span></button>
+<button class="ditem" data-v="pipeline" onclick="showView('pipeline')">🤝 Deal Pipeline <span class="dlock" id="lkPipeline"></span></button>
+<button class="ditem" data-v="check" onclick="showView('check')">✅ Data Check</button>
+<button class="ditem" data-v="store" onclick="showView('store')">💾 Stored Data</button>
+<button class="ditem" data-v="settings" onclick="showView('settings')">⚙️ Settings</button>
+<button class="ditem" data-v="sub" onclick="showView('sub')">💳 Subscription / Payment</button>
+<button class="ditem" data-v="admin" id="dAdmin" onclick="showView('admin')" style="display:none">🛡️ GG Admin — Khata</button>
+<div class="dcustom"><b>Apne business ki apni App chahiye?</b><p>GG aap ke business ke hisaab se customized app bana deta hai — khata, booking, CRM, jo chahiye.</p><a href="https://wa.me/923116246000?text=Assalamualaikum%2C%20mujhe%20apne%20business%20ke%20liye%20customized%20app%20banwani%20hai" target="_blank" rel="noopener">WhatsApp Par Baat Karein</a></div>
+<div class="drabta"><b>GG Se Rabta</b><a class="wa" href="https://wa.me/923116246000?text=Assalamualaikum%2C%20mujhe%20Property%20Match%20ke%20bare%20mein%20maloomat%20chahiye" target="_blank" rel="noopener">WhatsApp — 0311 624 6000</a><div class="socs"><a href="https://linktr.ee/Globalguruofficial1" target="_blank" rel="noopener">Linktree</a><a href="https://instagram.com/globalgurusystems" target="_blank" rel="noopener">Instagram</a><a href="https://youtube.com/@globalgurusystems" target="_blank" rel="noopener">YouTube</a><a href="https://tiktok.com/@user6158261285261" target="_blank" rel="noopener">TikTok</a><a href="https://facebook.com/globalguruofficial1" target="_blank" rel="noopener">Facebook</a><a href="https://threads.com/@globalgurusystems" target="_blank" rel="noopener">Threads</a></div></div>
+</aside>
+<div id="imgModal" onclick="this.style.display='none'"><img id="imgModalImg" alt="Payment screenshot bara"></div>
+
 <div class="wrap">
 
 <div class="card" id="userBar" style="display:none;align-items:center;gap:10px;flex-wrap:wrap">
@@ -150,11 +218,14 @@ body{padding-bottom:52px}
 <button class="btn grey" onclick="ggSignOut()">Logout</button>
 </div>
 
-<div class="card" id="adminCard" style="display:none">
+<div id="viewerBar"><b>Viewer Mode</b> — aap app dekh sakte hain aur demo/apna data daal kar matches ki <b>ginti</b> dekh sakte hain, lekin numbers aur saare features <b>subscription</b> se khulenge. <button class="btn" style="padding:6px 12px;font-size:13px;margin-left:6px" onclick="showView('sub')">Plans Aur Fees Dekhein</button></div>
+
+<div class="card viewcard" id="adminCard" style="display:none">
 <h2>GG Admin — Adviser License</h2>
 <div class="row">
 <input type="email" id="licEmail" placeholder="Adviser ki Gmail" style="flex:1;min-width:200px">
 <input type="text" id="licBrand" placeholder="Brand naam (masalan: F&B Associate)" style="flex:1;min-width:170px">
+<input type="text" id="licPhone" placeholder="Adviser ka WhatsApp (03xx...)" style="flex:1;min-width:150px">
 <select id="licPlan"><option>Starter</option><option>Pro</option><option>White-Label</option></select>
 <select id="licMonths"><option value="1">1 Mahina</option><option value="3">3 Mahine</option><option value="6">6 Mahine</option><option value="12">12 Mahine</option></select>
 <button class="btn" onclick="adminAddLicense()">License Banao / Update Karo</button>
@@ -163,11 +234,23 @@ body{padding-bottom:52px}
 <div id="licList" style="margin-top:10px;overflow-x:auto"></div>
 <h2 style="margin-top:18px">Payment Screenshots (advisers ne bheje)</h2>
 <div id="payList" style="overflow-x:auto"></div>
+<h2 style="margin-top:20px">GG Khata — Hisab Kitab (sirf admin ke liye)</h2>
+<div id="khataBox"><p style="color:#888;font-size:13px">Khata load ho raha hai...</p></div>
 </div>
 
-<div class="card" id="payCard" style="display:none">
+<div class="card viewcard" id="payCard" style="display:none">
 <h2>Subscription / Payment</h2>
 <p id="payPlanInfo" style="margin:4px 0 10px;color:#5b0f22"></p>
+<div class="plans">
+<div class="plan"><h3>Starter</h3><div class="fee">Rs 4,999 <span>/ mahina</span></div><ul>
+<li>✓ Matching system (Buyer ↔ Seller)</li><li>✓ Apna data upload — Excel / WhatsApp / Sheet</li><li>✓ Data Check (ghalat cutting ki pehchan)</li><li>✓ WhatsApp Verify / Forward messages</li><li>✓ 1 user</li><li class="no">Deal Pipeline</li><li class="no">Number Chhupana</li><li class="no">Rent Matching · Excel Export</li></ul></div>
+<div class="plan hot"><h3>Pro ⭐</h3><div class="fee">Rs 9,999 <span>/ mahina</span></div><ul>
+<li>✓ Starter ka sab kuch</li><li>✓ Deal Pipeline (Verify → Forward → Visit → Deal Band)</li><li>✓ Number Chhupana (buyer ko seller ka number nahi jata)</li><li>✓ Manual Lead Add</li><li>✓ Rent Matching</li><li>✓ Excel Export</li><li>✓ Zyada data limit</li></ul></div>
+<div class="plan"><h3>White-Label</h3><div class="fee">Rs 24,999 <span>/ mahina + setup</span></div><ul>
+<li>✓ Pro ka sab kuch</li><li>✓ Aap ke apne naam / logo par app</li><li>✓ Team ke accounts</li><li>✓ Unlimited data</li><li>✓ Priority support</li></ul></div>
+</div>
+<p style="color:#888;font-size:12.5px;margin:0 0 6px">Plan select karke neeche diye gaye Raast number par fees bhejein aur screenshot upload kar dein — tasdeeq ke baad aap ka plan active ho jayega.</p>
+
 <div class="row" style="align-items:center">
 <span style="font-size:15px">Fees <b>Raast</b> se is number par bhejein:</span>
 <span style="font-size:20px;font-weight:bold;color:#5b0f22;letter-spacing:1px">0302 7374880</span>
@@ -181,8 +264,8 @@ body{padding-bottom:52px}
 <p style="color:#666;font-size:13px;margin-top:10px">1) Apni bank app se Raast transfer karein — bhejne se pehle account ka naam app mein nazar aa jayega, tasdeeq kar lein · 2) Payment ka screenshot neeche se yahin upload kar dein — ya GG ke WhatsApp <b>0311 624 6000</b> par bhejein · 3) Tasdeeq ke baad aap ka license activate / renew ho jayega.</p>
 </div>
 
-<div class="card" id="settingsCard" style="display:none">
-<h2>1 — Settings · Apni Pehchan (messages aur export mein yehi jayegi)</h2>
+<div class="card viewcard" id="settingsCard" style="display:none">
+<h2>Settings · Apni Pehchan (messages aur export mein yehi jayegi)</h2>
 <div class="row">
 <input type="text" id="brandInput" value="F&B Associate" placeholder="Business / Brand naam (masalan: F&B Associate)" style="flex:1;min-width:200px">
 <input type="text" id="setOwner" placeholder="Aap ka naam (Owner)" style="flex:1;min-width:160px">
@@ -195,8 +278,16 @@ body{padding-bottom:52px}
 <p style="color:#888;font-size:12px;margin-top:6px">Ye setting aap ke account (cloud) mein mehfooz rehti hai — kisi bhi device par login karein, yehi pehchan aye gi.</p>
 </div>
 
-<div class="card">
-<h2>2 — Data Put Karo</h2>
+
+<div class="card viewcard" id="ggCard" style="display:none">
+<h2>Global Guru — Rabta Aur Social</h2>
+<div class="drabta" style="border:none;padding:0;background:none"><a class="wa" href="https://wa.me/923116246000?text=Assalamualaikum%2C%20mujhe%20Property%20Match%20ke%20bare%20mein%20maloomat%20chahiye" target="_blank" rel="noopener">WhatsApp — 0311 624 6000</a><div class="socs"><a href="https://linktr.ee/Globalguruofficial1" target="_blank" rel="noopener">Linktree</a><a href="https://instagram.com/globalgurusystems" target="_blank" rel="noopener">Instagram</a><a href="https://youtube.com/@globalgurusystems" target="_blank" rel="noopener">YouTube</a><a href="https://tiktok.com/@user6158261285261" target="_blank" rel="noopener">TikTok</a><a href="https://facebook.com/globalguruofficial1" target="_blank" rel="noopener">Facebook</a><a href="https://threads.com/@globalgurusystems" target="_blank" rel="noopener">Threads</a></div></div>
+<p style="color:#888;font-size:12.5px;margin-top:10px">Apne business ke liye customized app, website ya automation chahiye to WhatsApp par rabta karein — <b>GG hai na.</b></p>
+</div>
+
+<div class="card viewcard" id="dataCard">
+<h2>Data Put Karo</h2>
+<div class="note" style="margin-bottom:12px"><b>Pehla qadam:</b> 1) Apni file neeche dalain — ya pehle <b>Demo Data</b> se try kar lein &nbsp;·&nbsp; 2) Matches khud nikal ayenge &nbsp;·&nbsp; 3) Seller ko <b>Verify</b> karke buyer ko <b>Forward</b> karein. Bas yehi roz ka kaam hai.</div>
 <div class="drop" id="dropZone">
 <b>Koi Bhi File Yahan Drop Karo Ya Click Karke Select Karo</b><br>
 <span style="font-size:13px;color:#666">RAR · ZIP · Excel · Sheet/CSV · Word · PDF · TXT · Photo — jo file bhi ho, pehle app ke store mein save hogi, phir us se data niklega. Aik saath kai files bhi de sakte ho.</span>
@@ -213,33 +304,46 @@ body{padding-bottom:52px}
 <div class="note" style="margin-top:12px"><b>Har file store hoti hai:</b> Jo file bhi dalo ge, woh pehle neeche wale <b>Stored Data</b> hisse mein save ho jayegi — app band karke dobara kholo ge to data wapas mil jayega. WhatsApp groups ki chat RAR/ZIP mein ho to seedha dal do, andar ki chat khud parh legi. Photo wali file store ho jayegi lekin us se text wali leads nahi niklein gi.</div>
 </div>
 
-<div class="stats" id="statsBox">
+<div class="stats viewcard" id="statsBox">
 <div class="stat"><b id="stLeads">0</b><span>Total Leads</span></div>
 <div class="stat"><b id="stBuyers">0</b><span>Buyers</span></div>
 <div class="stat"><b id="stSellers">0</b><span>Sellers</span></div>
 <div class="stat"><b id="stMatches">0</b><span>Matches</span></div>
 <div class="stat"><b id="stBest">0</b><span>Best (Score 100)</span></div>
 <div class="stat"><b id="stSame">0</b><span>Same Plot</span></div>
-<div class="stat"><b id="stBad" style="color:#b00020">0</b><span>Shakki Data (Ghalat Cutting)</span></div>
+<div class="stat"><b id="stBad" style="color:#b00020">0</b><span>Shakki Data</span></div>
 </div>
 
-<div class="card" style="margin-top:14px">
-<h2>3 — Matches</h2>
+<div class="card viewcard" id="matchesCard" style="margin-top:14px">
+<h2>Matches</h2>
 <div class="row" style="margin-bottom:10px">
 <input type="text" id="fSearch" placeholder="Search: naam, number, plot, sector..." style="flex:1;min-width:180px" oninput="applyFilters(true)">
 <select id="fLoc" onchange="applyFilters(true)"><option value="">Sab Locations</option></select>
 <select id="fScore" onchange="applyFilters(true)"><option value="0">Sab Scores</option><option value="100">Sirf 100</option><option value="90">90+</option><option value="80">80+</option></select>
 <label style="font-size:13px;display:flex;align-items:center;gap:5px"><input type="checkbox" id="fBad" onchange="applyFilters(true)"> Sirf shakki data wale</label>
+<label style="font-size:13px;display:flex;align-items:center;gap:5px" id="hideNumWrap"><input type="checkbox" id="fHideNum" onchange="applyFilters(true)"> Seller ka number chhupao <span id="hideNumLock"></span></label>
 <select id="fTag" onchange="applyFilters(true)"><option value="">Sab Tags</option><option>Same Plot</option><option>Alternative Plot</option><option>No Specific Plot</option></select>
-<button class="btn gold" onclick="exportExcel()">Matches Excel Export</button>
+<button class="btn gold" id="exportBtn" onclick="exportExcel()">Matches Excel Export</button>
 </div>
-<div class="note">Har buyer ke sirf <b>best 5 matches</b> rakhe jate hain. Pehle seller ko <b>Verify</b> karo, confirm ho to buyer ko <b>Forward</b> karo. Data sirf aap ke browser mein rehta hai — kisi server par nahi jata.</div>
+<div class="note">Har buyer ke sirf <b>best 5 matches</b> rakhe jate hain. Pehle seller ko <b>Verify</b> karo, confirm ho to buyer ko <b>Forward</b> karo. Data aap ke account (cloud) mein mehfooz rehta hai — sirf aap hi dekh sakte hain.</div>
 <div id="matchList"></div>
 <button class="btn grey hidden" id="moreBtn" onclick="renderMore()">Aur Matches Dikhao</button>
 </div>
 
-<div class="card">
-<h2>4 — Data Check (Master List)</h2>
+
+<div class="customStrip viewcard" id="customStrip"><div>Ye system pasand aya? <b>Apne office ke liye customized version</b> bhi ban sakta hai — aap ke naam, aap ke hisaab se.</div><a href="https://wa.me/923116246000?text=Assalamualaikum%2C%20mujhe%20Property%20Match%20ka%20customized%20version%20chahiye" target="_blank" rel="noopener">WhatsApp Par Baat Karein</a></div>
+
+<div class="card viewcard" id="pipelineCard" style="display:none">
+<h2>Deal Pipeline — Kaunsi Deal Kahan Tak Pohanchi</h2>
+<div id="pipelineLock" class="lockNote" style="display:none">🔒 <b>Deal Pipeline Pro plan mein hai.</b> Is mein har match ka stage chalta hai — Verify Bheja → Forward Ho Gaya → Visit Tay → Deal Band — aur band deals ka commission bhi yahin likha jata hai. <button class="btn gold" style="padding:6px 12px;font-size:13px;margin-left:6px" onclick="showView('sub')">Pro Plan Dekhein</button></div>
+<div id="pipelineBody">
+<div id="pipeSummary" style="margin-bottom:10px"></div>
+<div id="pipeList"></div>
+</div>
+</div>
+
+<div class="card viewcard" id="masterCard" style="display:none">
+<h2>Data Check (Master List)</h2>
 <div class="note">Is list se app har lead ko check karti hai: jis sector mein jo cutting <b>hoti hi nahi</b>, woh lead <b>shakki</b> mark ho jati hai — match forward karne se pehle pata chal jata hai ke data ghalat hai. Ye list <b>draft</b> hai (web research se bani hui) — jo sector ghalat lage, neeche se theek kar dein, check usi waqt badal jayega.</div>
 <div id="masterBox" style="overflow-x:auto"></div>
 <div class="row" style="margin-top:10px">
@@ -250,8 +354,8 @@ body{padding-bottom:52px}
 </div>
 </div>
 
-<div class="card">
-<h2>5 — Stored Data (jo files dali, sab mehfooz)</h2>
+<div class="card viewcard" id="storedCard" style="display:none">
+<h2>Stored Data (jo files dali, sab mehfooz)</h2>
 <div id="storageInfo" style="font-size:13px;color:#555;margin-bottom:8px">Store check ho raha hai...</div>
 <div id="fileLib" style="overflow-x:auto"></div>
 <div class="row" style="margin-top:10px">
@@ -260,9 +364,36 @@ body{padding-bottom:52px}
 </div>
 </div>
 
-<div class="card">
-<h2>Leads Preview <button class="btn grey" style="padding:5px 10px;font-size:12px" onclick="toggleLeads()">Dikhao / Chhupao</button></h2>
-<div id="leadsBox" class="hidden" style="overflow-x:auto"></div>
+
+<div class="card viewcard" id="manualCard" style="display:none">
+<h2>Manual Lead Add Karo</h2>
+<div id="manualLock" class="lockNote" style="display:none">🔒 <b>Manual Lead Add Pro plan mein hai.</b> Roz ke naye buyer/seller jo kisi file mein nahi hote, woh yahan se haath se add hote hain. <button class="btn gold" style="padding:6px 12px;font-size:13px;margin-left:6px" onclick="showView('sub')">Pro Plan Dekhein</button></div>
+<div id="manualForm">
+<div class="row">
+<select id="maSide" style="min-width:150px"><option value="buyer">Buyer (mang raha hai)</option><option value="seller">Seller (bech raha hai)</option><option value="rent-buyer">Rent Buyer (kirayedar)</option><option value="rent-seller">Rent Seller (kiraye par dena)</option></select>
+<select id="maType" style="min-width:120px"><option>Plot</option><option>House</option><option>Flat</option><option>Portion</option><option>Commercial</option></select>
+<input type="text" id="maName" placeholder="Naam" style="flex:1;min-width:140px">
+<input type="text" id="maPhone" placeholder="WhatsApp number (03xx...)" style="flex:1;min-width:160px">
+</div>
+<div class="row" style="margin-top:8px">
+<input type="text" id="maLoc" placeholder="Location (masalan: DHA Multan)" style="flex:1;min-width:160px">
+<input type="text" id="maSector" placeholder="Sector (P)" style="width:100px">
+<input type="text" id="maPlot" placeholder="Plot No" style="width:110px">
+<input type="text" id="maSize" placeholder="Size Marla (1 Kanal = 20)" style="width:170px">
+<input type="text" id="maPrice" placeholder="Price / Budget (Rs poori rakam)" style="flex:1;min-width:180px">
+<button class="btn" onclick="manualAdd()">Lead Add Karo</button>
+</div>
+<p style="color:#888;font-size:12px;margin-top:6px">Price poori rakam Rs mein likhein — masalan 55 lac ke liye 5500000. Add hote hi matches khud chal jayenge.</p>
+</div>
+</div>
+
+<div class="card viewcard" id="leadsCard" style="display:none">
+<h2>Meri Leads — Saare Buyers / Sellers Aik Jagah</h2>
+<div class="row" style="margin-bottom:10px">
+<input type="text" id="leadSearch" placeholder="Search: naam, number, sector, plot..." style="flex:1;min-width:180px" oninput="renderLeads()">
+<select id="leadKind" onchange="renderLeads()"><option value="">Sab Leads</option><option value="buyer">Sirf Buyers</option><option value="seller">Sirf Sellers</option><option value="rent">Sirf Rent</option></select>
+</div>
+<div id="leadsBox" style="overflow-x:auto"></div>
 </div>
 
 </div>
@@ -479,70 +610,68 @@ function dedupeLeads(leads){
   return out;
 }
 function matchLeads(leads){
-  var buyers=leads.filter(function(l){return l.intent==="buyer";});
-  var sellers=leads.filter(function(l){return l.intent==="seller";});
-  // index sellers by location|type
-  var idx={};
-  sellers.forEach(function(s){
-    var k=(s.location||"")+"|"+(s.type||"");
-    (idx[k]=idx[k]||[]).push(s);
-    var k2=(s.location||"")+"|";
-    (idx[k2]=idx[k2]||[]).push(s);
-  });
-  var matches=[];
-  buyers.forEach(function(b){
-    var pool=[];
-    var seenS={};
-    [(b.location||"")+"|"+(b.type||""), (b.location||"")+"|"].forEach(function(k){
-      (idx[k]||[]).forEach(function(s){ if(!seenS[s.id]){seenS[s.id]=1; pool.push(s);} });
-    });
-    // buyers with no location: try all sellers with same type (small data only)
-    if(!b.location){ sellers.forEach(function(s){ if(!seenS[s.id]){seenS[s.id]=1; pool.push(s);} }); }
-    pool.forEach(function(s){
-      if(b.phone && s.phone && b.phone===s.phone) return; // self-match
-      var score=0;
-      // location — dono ka hona aur barabar hona lazmi
-      if(!b.location || !s.location || b.location!==s.location) return;
-      score+=35;
-      // sector — dono mojood hon aur mukhtalif hon to match nahi (mukhtalif sector = mukhtalif inventory)
-      var bSec=String(b.sector||"").replace(/[^A-Za-z]/g,"").toUpperCase();
-      var sSec=String(s.sector||"").replace(/[^A-Za-z]/g,"").toUpperCase();
-      if(bSec && sSec && bSec!==sSec) return;
-      // type
-      if(b.type && s.type){ if(b.type!==s.type) return; score+=20; }
-      else score+=10;
-      // size — dono ka hona lazmi
-      if(!b.sizeMarla || !s.sizeMarla) return;
-      var diff=Math.abs(b.sizeMarla-s.sizeMarla)/Math.max(b.sizeMarla,s.sizeMarla);
-      if(diff===0) score+=25; else if(diff<=0.1) score+=18; else if(diff<=0.25) score+=8; else return;
-      // price — dono ka hona lazmi
-      if(!b.price || !s.price) return;
-      if(s.price<=b.price) score+=20;
-      else if(s.price<=b.price*1.05) score+=12;
-      else if(s.price<=b.price*1.10) score+=6;
-      else return;
-      var samePlot = !!(b.plotNo && s.plotNo && String(b.plotNo)===String(s.plotNo) && (!b.sector || !s.sector || String(b.sector)===String(s.sector)));
-      var tag = samePlot ? "Same Plot" : (b.plotNo ? "Alternative Plot" : "No Specific Plot");
-      matches.push({score:score, tag:tag, buyer:b, seller:s});
-    });
-  });
-  function ratio(m){ return (m.buyer.price && m.seller.price)? m.seller.price/m.buyer.price : 0; }
   function cmp(a,b2){
     if(b2.score!==a.score) return b2.score-a.score;
     var ta=a.tag==="Same Plot"?0:1, tb=b2.tag==="Same Plot"?0:1;
     if(ta!==tb) return ta-tb;
-    return ratio(b2)-ratio(a);
+    var ra=(a.buyer.price && a.seller.price)? a.seller.price/a.buyer.price : 0;
+    var rb=(b2.buyer.price && b2.seller.price)? b2.seller.price/b2.buyer.price : 0;
+    return rb-ra;
   }
-  matches.sort(cmp);
-  // Har buyer ke sirf best 5 matches rakho — yehi dealer ke kaam ke hain, baqi shor hai
-  var perBuyer={}, capped=[];
-  matches.forEach(function(m){
-    var k=m.buyer.id;
-    perBuyer[k]=(perBuyer[k]||0)+1;
-    if(perBuyer[k]<=5) capped.push(m);
-  });
-  capped.sort(cmp);
-  return capped;
+  function run(buyers, sellers, kind){
+    var idx={};
+    sellers.forEach(function(s){
+      var k=(s.location||"")+"|"+(s.type||"");
+      (idx[k]=idx[k]||[]).push(s);
+      var k2=(s.location||"")+"|";
+      (idx[k2]=idx[k2]||[]).push(s);
+    });
+    var matches=[];
+    buyers.forEach(function(b){
+      var pool=[]; var seenS={};
+      [(b.location||"")+"|"+(b.type||""), (b.location||"")+"|"].forEach(function(k){
+        (idx[k]||[]).forEach(function(s){ if(!seenS[s.id]){seenS[s.id]=1; pool.push(s);} });
+      });
+      if(!b.location){ sellers.forEach(function(s){ if(!seenS[s.id]){seenS[s.id]=1; pool.push(s);} }); }
+      pool.forEach(function(s){
+        if(b.phone && s.phone && b.phone===s.phone) return;
+        var score=0;
+        if(!b.location || !s.location || b.location!==s.location) return;
+        score+=35;
+        var bSec=String(b.sector||"").replace(/[^A-Za-z]/g,"").toUpperCase();
+        var sSec=String(s.sector||"").replace(/[^A-Za-z]/g,"").toUpperCase();
+        if(bSec && sSec && bSec!==sSec) return;
+        if(b.type && s.type){ if(b.type!==s.type) return; score+=20; }
+        else score+=10;
+        if(!b.sizeMarla || !s.sizeMarla) return;
+        var diff=Math.abs(b.sizeMarla-s.sizeMarla)/Math.max(b.sizeMarla,s.sizeMarla);
+        if(diff===0) score+=25; else if(diff<=0.1) score+=18; else if(diff<=0.25) score+=8; else return;
+        if(!b.price || !s.price) return;
+        if(s.price<=b.price) score+=20;
+        else if(s.price<=b.price*1.05) score+=12;
+        else if(s.price<=b.price*1.10) score+=6;
+        else return;
+        var samePlot = !!(b.plotNo && s.plotNo && String(b.plotNo)===String(s.plotNo) && (!b.sector || !s.sector || String(b.sector)===String(s.sector)));
+        var tag = samePlot ? "Same Plot" : (b.plotNo ? "Alternative Plot" : "No Specific Plot");
+        matches.push({score:score, tag:tag, buyer:b, seller:s, kind:kind});
+      });
+    });
+    matches.sort(cmp);
+    var perBuyer={}, capped=[];
+    matches.forEach(function(m){
+      var k=m.buyer.id;
+      perBuyer[k]=(perBuyer[k]||0)+1;
+      if(perBuyer[k]<=5) capped.push(m);
+    });
+    return capped;
+  }
+  var sale=run(leads.filter(function(l){return l.intent==="buyer";}),
+               leads.filter(function(l){return l.intent==="seller";}), 'sale');
+  var rent=run(leads.filter(function(l){return l.intent==="rent-buyer";}),
+               leads.filter(function(l){return l.intent==="rent-seller";}), 'rent');
+  var all=sale.concat(rent);
+  all.sort(cmp);
+  return all;
 }
 function sellerVerifyMsg(m, brand){
   var s=m.seller, b=brand||"F&B Associate";
@@ -608,6 +737,78 @@ document.querySelectorAll('.ggimg').forEach(function(im){ im.src=LOGO_SRC; });
 var LEADS=[], MATCHES=[], FILTERED=[], SHOWN=0, PAGE=100;
 var brand = localStorage.getItem('ggpm_brand') || 'F&B Associate';
 document.getElementById('brandInput').value = brand;
+// ===== v12: Access (plans), Views, Menu, Utils =====
+var PLANS_FEATS = {
+  'Starter':     {pipeline:false, hideNum:false, manual:false, rent:false, exportX:false},
+  'Pro':         {pipeline:true,  hideNum:true,  manual:true,  rent:true,  exportX:true},
+  'White-Label': {pipeline:true,  hideNum:true,  manual:true,  rent:true,  exportX:true},
+  'Admin':       {pipeline:true,  hideNum:true,  manual:true,  rent:true,  exportX:true}
+};
+function ggMode(){ try{ return (typeof FB!=='undefined' && FB.mode) ? FB.mode : 'out'; }catch(e){ return 'out'; } }
+function ggPlan(){ try{ return (typeof FB!=='undefined' && FB.plan) ? FB.plan : null; }catch(e){ return null; } }
+function canDo(f){
+  var m=ggMode();
+  if(m==='admin') return true;
+  if(m==='out') return true;
+  if(m==='viewer') return false;
+  var p=PLANS_FEATS[ggPlan()||'Starter']||PLANS_FEATS['Starter'];
+  return !!p[f];
+}
+function visMatches(){ return canDo('rent')? MATCHES : MATCHES.filter(function(m){ return m.kind!=='rent'; }); }
+var CURVIEW='home';
+var VIEWS={home:['dataCard','statsBox','matchesCard','customStrip'],leads:['manualCard','leadsCard'],pipeline:['pipelineCard'],check:['masterCard'],store:['storedCard'],settings:['settingsCard','ggCard'],sub:['payCard'],admin:['adminCard']};
+function showView(v){
+  if(v==='admin' && ggMode()!=='admin') v='home';
+  CURVIEW=v;
+  document.querySelectorAll('.viewcard').forEach(function(el){ el.style.display='none'; });
+  (VIEWS[v]||[]).forEach(function(id){ var el=document.getElementById(id); if(el) el.style.display=''; });
+  document.querySelectorAll('#ggDrawer .ditem').forEach(function(b){ b.classList.toggle('act', b.getAttribute('data-v')===v); });
+  toggleDrawer(false);
+  if(v==='pipeline') renderPipeline();
+  if(v==='leads') renderLeads();
+  try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(e){}
+}
+function toggleDrawer(open){
+  var d=document.getElementById('ggDrawer'), o=document.getElementById('ggOverlay');
+  if(!d) return;
+  d.classList.toggle('open', !!open);
+  if(o) o.style.display=open?'block':'none';
+}
+function updateMenuBadges(){
+  var bm=document.getElementById('bdMatches'), bl=document.getElementById('bdLeads');
+  if(bm){ bm.textContent=MATCHES.length; bm.style.display=MATCHES.length?'':'none'; }
+  if(bl){ bl.textContent=LEADS.length; bl.style.display=LEADS.length?'':'none'; }
+  var lk=document.getElementById('lkPipeline'); if(lk) lk.textContent=canDo('pipeline')?'':'🔒 Pro';
+}
+function maskPhone(p){ var d=String(p||''); if(d.length<=6) return '•••••••'; return d.slice(0,6)+' •••••••'; }
+function leadAge(l){
+  if(!l || !l.date) return '';
+  var dt=null; var s=String(l.date).trim();
+  var m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if(m){ var y=Number(m[3]); if(y<100) y+=2000; dt=new Date(y, Number(m[2])-1, Number(m[1])); }
+  else { var t=Date.parse(s); if(!isNaN(t)) dt=new Date(t); else if(!isNaN(Number(s)) && Number(s)>20000 && Number(s)<80000){ dt=new Date(Math.round((Number(s)-25569)*86400000)); } }
+  if(!dt || isNaN(dt.getTime())) return '';
+  var days=Math.floor((Date.now()-dt.getTime())/86400000);
+  if(days<0) return '';
+  if(days===0) return 'aaj ki lead';
+  if(days===1) return 'kal ki lead';
+  return days+' din purani';
+}
+function copyText(t, okMsg){
+  function done(){ setStatus(okMsg||'Copy ho gaya.'); }
+  function fallback(){ var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); }catch(e){} ta.remove(); done(); }
+  if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(done).catch(fallback); } else fallback();
+}
+function broadcastReq(idx){
+  var l=LEADS[idx]; if(!l) return;
+  var msg='Required: '+(l.location||'Multan')+(l.sector?', Sector '+l.sector:'')+(l.plotNo?', Plot '+l.plotNo:'')+', '+sizeLabel(l.sizeMarla)+' — budget '+moneyFmt(l.price)+' tak. Kisi ke paas available ho to rabta karein. — '+brand;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg), '_blank');
+}
+function copyForward(idx){
+  var m=FILTERED[idx]; if(!m) return;
+  copyText(buyerForwardMsg(m, brand), 'Buyer ke liye message copy ho gaya — is mein seller ka number nahi hai.');
+}
+
 function saveBrand(){ brand=document.getElementById('brandInput').value.trim()||'F&B Associate'; localStorage.setItem('ggpm_brand', brand); renderMatches(true); setStatus('Brand naam save ho gaya: '+brand); }
 function setStatus(t){ document.getElementById('statusLine').textContent=t; }
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
@@ -838,7 +1039,7 @@ async function updateStorageInfo(){
       estTxt=' · Browser store istemal: '+fmtSize(est.usage||0)+' (limit taqreeban '+fmtSize(est.quota||0)+')';
     }
   }catch(e){}
-  el.textContent='Stored leads: '+LEADS.length+' · Stored files: '+files.length+estTxt+' — Data isi device ke browser mein mehfooz hai; Firebase (online) store is ke baad wala step hai.';
+  el.textContent='Stored leads: '+LEADS.length+' · Stored files: '+files.length+estTxt+' — Login ke saath ye data aap ke account (cloud) mein bhi mehfooz hota hai, har device par milega.';
 }
 async function renderFileLib(){
   var box=document.getElementById('fileLib');
@@ -980,12 +1181,14 @@ function addLeads(newLeads){
 
 function updateStats(){
   document.getElementById('stLeads').textContent=LEADS.length;
-  document.getElementById('stBuyers').textContent=LEADS.filter(function(l){return l.intent==='buyer';}).length;
-  document.getElementById('stSellers').textContent=LEADS.filter(function(l){return l.intent==='seller';}).length;
-  document.getElementById('stMatches').textContent=MATCHES.length;
-  document.getElementById('stBest').textContent=MATCHES.filter(function(m){return m.score>=100;}).length;
-  document.getElementById('stSame').textContent=MATCHES.filter(function(m){return m.tag==='Same Plot';}).length;
+  document.getElementById('stBuyers').textContent=LEADS.filter(function(l){return l.intent==='buyer'||l.intent==='rent-buyer';}).length;
+  document.getElementById('stSellers').textContent=LEADS.filter(function(l){return l.intent==='seller'||l.intent==='rent-seller';}).length;
+  var vm=visMatches();
+  document.getElementById('stMatches').textContent=vm.length;
+  document.getElementById('stBest').textContent=vm.filter(function(m){return m.score>=100;}).length;
+  document.getElementById('stSame').textContent=vm.filter(function(m){return m.tag==='Same Plot';}).length;
   document.getElementById('stBad').textContent=LEADS.filter(function(l){ var f=leadFlag(l); return f && f.level==='bad'; }).length;
+  updateMenuBadges();
 }
 function buildLocFilter(){
   var sel=document.getElementById('fLoc');
@@ -993,11 +1196,27 @@ function buildLocFilter(){
   MATCHES.forEach(function(m){ if(m.buyer.location) locs[m.buyer.location]=1; });
   sel.innerHTML='<option value="">Sab Locations</option>'+Object.keys(locs).sort().map(function(l){return '<option>'+esc(l)+'</option>';}).join('');
 }
+var STAGES=['','Verify Bheja','Forward Ho Gaya','Visit Tay','Deal Band','Deal Khatam'];
+var OLD_STAGE_MAP={'Called':'Verify Bheja','Verified':'Verify Bheja','Forwarded':'Forward Ho Gaya','Done':'Deal Band','No Response':'Deal Khatam'};
 function statusKey(m){ return m.buyer.id+'__'+m.seller.id; }
-function getStatus(m){ try{ return (JSON.parse(localStorage.getItem('ggpm_status')||'{}'))[statusKey(m)]||''; }catch(e){ return ''; } }
-function setMatchStatus(m, val){
+function statusRec(m){
   var all={}; try{ all=JSON.parse(localStorage.getItem('ggpm_status')||'{}'); }catch(e){}
-  all[statusKey(m)]=val; localStorage.setItem('ggpm_status', JSON.stringify(all));
+  var v=all[statusKey(m)];
+  if(!v) return {s:'', c:''};
+  if(typeof v==='string') return {s: OLD_STAGE_MAP[v]||v, c:''};
+  return {s: OLD_STAGE_MAP[v.s]||v.s||'', c: (v.c==null?'':v.c)};
+}
+function getStatus(m){ return statusRec(m).s; }
+function saveStatusRec(m, rec){
+  var all={}; try{ all=JSON.parse(localStorage.getItem('ggpm_status')||'{}'); }catch(e){}
+  all[statusKey(m)]=rec; try{ localStorage.setItem('ggpm_status', JSON.stringify(all)); }catch(e){}
+}
+function setMatchStatus(m, val){ if(!m) return; var r=statusRec(m); r.s=val; saveStatusRec(m, r); renderPipeline(); }
+function setCommission(m, val){ if(!m) return; var r=statusRec(m); r.c=val; saveStatusRec(m, r); renderPipeline(); }
+function stageSelectHtml(m, idx, arrName){
+  var st=getStatus(m);
+  var opts=STAGES.map(function(o){ return '<option '+(st===o?'selected':'')+' value="'+o+'">'+(o||'Stage: Naya')+'</option>'; }).join('');
+  return '<select onchange="setMatchStatus('+arrName+'['+idx+'], this.value)">'+opts+'</select>';
 }
 function applyFilters(reset){
   var q=document.getElementById('fSearch').value.toLowerCase();
@@ -1006,6 +1225,7 @@ function applyFilters(reset){
   var tag=document.getElementById('fTag').value;
   var badOnly=document.getElementById('fBad') && document.getElementById('fBad').checked;
   FILTERED=MATCHES.filter(function(m){
+    if(m.kind==='rent' && !canDo('rent')) return false;
     if(loc && m.buyer.location!==loc) return false;
     if(m.score<sc) return false;
     if(tag && m.tag!==tag) return false;
@@ -1017,23 +1237,37 @@ function applyFilters(reset){
     return true;
   });
   renderMatches(reset);
+  renderPipeline();
 }
 function matchCard(m, idx){
   var b=m.buyer, s=m.seller;
-  var st=getStatus(m);
-  var opts=['','Called','Verified','Forwarded','Done','No Response'].map(function(o){ return '<option '+(st===o?'selected':'')+' value="'+o+'">'+(o||'Status: New')+'</option>'; }).join('');
-  return '<div class="match'+(m.tag==='Same Plot'?' same':'')+'">'+
-    '<div class="badges"><span class="badge score">Score '+m.score+'</span><span class="badge '+(m.tag==='Same Plot'?'sameb':'altb')+'">'+esc(m.tag)+'</span><span class="badge">'+esc(b.location||s.location)+'</span><img class="mlogo" src="'+LOGO_SRC+'" alt="GG"></div>'+
-    flagHtml(b,s)+'<div style="font-weight:700;margin-bottom:6px">'+esc(s.type||b.type)+' · '+esc(sizeLabel(s.sizeMarla||b.sizeMarla))+(s.sector?' · Sector '+esc(s.sector):'')+(s.plotNo?' · Plot '+esc(s.plotNo):'')+' — Demand '+esc(moneyFmt(s.price))+' (Budget '+esc(moneyFmt(b.price))+')</div>'+
-    '<div class="cols">'+
-      '<div class="side"><h4>Buyer (mang raha hai)</h4><b>'+esc(b.name||'—')+'</b><br>'+esc(b.phone||'Number nahi')+'<br>Budget: '+esc(moneyFmt(b.price))+(b.plotNo?'<br>Matluba Plot: '+esc(b.plotNo):'')+'<div class="detail">'+esc(b.detail)+'</div></div>'+
-      '<div class="side"><h4>Seller (bech raha hai)</h4><b>'+esc(s.name||'—')+'</b><br>'+esc(s.phone||'Number nahi')+'<br>Demand: '+esc(moneyFmt(s.price))+'<div class="detail">'+esc(s.detail)+'</div></div>'+
-    '</div>'+
-    '<div class="actions">'+
+  var viewer=(ggMode()==='viewer');
+  var hideN=canDo('hideNum') && document.getElementById('fHideNum') && document.getElementById('fHideNum').checked;
+  function ph(p, isSeller){
+    if(!p) return 'Number nahi';
+    if(viewer) return maskPhone(p);
+    if(isSeller && hideN) return maskPhone(p);
+    return esc(p);
+  }
+  var ageB=leadAge(b), ageS=leadAge(s);
+  var badges='<div class="badges"><span class="badge score">Score '+m.score+'</span><span class="badge '+(m.tag==='Same Plot'?'sameb':'altb')+'">'+esc(m.tag)+'</span>'+(m.kind==='rent'?'<span class="badge" style="background:#7a1530">RENT</span>':'')+'<span class="badge">'+esc(b.location||s.location)+'</span><img class="mlogo" src="'+LOGO_SRC+'" alt="GG"></div>';
+  var actions='';
+  if(viewer){
+    actions='<div class="actions"><button class="btn gold" onclick="showView(\'sub\')">🔒 Numbers Aur Rabta — Subscription Se Khule Ga</button></div>';
+  } else {
+    actions='<div class="actions">'+
       (s.phone? '<a class="btn green" target="_blank" href="'+waLink(s.phone, sellerVerifyMsg(m, brand))+'">1 · Seller Ko Verify (WhatsApp)</a>':'')+
       (b.phone? '<a class="btn" target="_blank" href="'+waLink(b.phone, buyerForwardMsg(m, brand))+'">2 · Buyer Ko Forward (WhatsApp)</a>':'')+
-      '<select onchange="setMatchStatus(FILTERED['+idx+'], this.value)">'+opts+'</select>'+
-    '</div></div>';
+      (hideN? '<button class="btn grey" onclick="copyForward('+idx+')">Buyer Ke Liye Copy (bina number)</button>':'')+
+      (canDo('pipeline')? stageSelectHtml(m, idx, 'FILTERED') : '')+
+    '</div>';
+  }
+  return '<div class="match'+(m.tag==='Same Plot'?' same':'')+'">'+ badges +
+    flagHtml(b,s)+'<div style="font-weight:700;margin-bottom:6px">'+esc(s.type||b.type)+' · '+esc(sizeLabel(s.sizeMarla||b.sizeMarla))+(s.sector?' · Sector '+esc(s.sector):'')+(s.plotNo?' · Plot '+esc(s.plotNo):'')+' — '+(m.kind==='rent'?'Kiraya ':'Demand ')+esc(moneyFmt(s.price))+' (Budget '+esc(moneyFmt(b.price))+')</div>'+
+    '<div class="cols">'+
+      '<div class="side"><h4>Buyer (mang raha hai)</h4><b>'+esc(b.name||'—')+'</b><br>'+ph(b.phone,false)+(ageB?'<br><span class="ageTxt">'+ageB+'</span>':'')+'<br>Budget: '+esc(moneyFmt(b.price))+(b.plotNo?'<br>Matluba Plot: '+esc(b.plotNo):'')+'<div class="detail">'+esc(b.detail)+'</div></div>'+
+      '<div class="side"><h4>Seller (bech raha hai)</h4><b>'+esc(s.name||'—')+'</b><br>'+ph(s.phone,true)+(ageS?'<br><span class="ageTxt">'+ageS+'</span>':'')+'<br>'+(m.kind==='rent'?'Kiraya: ':'Demand: ')+esc(moneyFmt(s.price))+'<div class="detail">'+esc(s.detail)+'</div></div>'+
+    '</div>'+ actions +'</div>';
 }
 function renderMatches(reset){
   if(reset) SHOWN=0;
@@ -1050,20 +1284,34 @@ function renderMore(){
   document.getElementById('moreBtn').classList.toggle('hidden', SHOWN>=FILTERED.length);
 }
 function renderLeads(){
-  var box=document.getElementById('leadsBox');
-  var html='<table><tr><th>ID</th><th>Kind</th><th>Location</th><th>Type</th><th>Size</th><th>Price/Budget</th><th>Name</th><th>Phone</th><th>Data Check</th></tr>';
-  LEADS.slice(0,300).forEach(function(l){
-    var f=leadFlag(l);
-    html+='<tr><td>'+esc(l.id)+'</td><td>'+esc(l.intent)+'</td><td>'+esc(l.location)+'</td><td>'+esc(l.type)+'</td><td>'+esc(sizeLabel(l.sizeMarla))+'</td><td>'+esc(moneyFmt(l.price))+'</td><td>'+esc(l.name)+'</td><td>'+esc(l.phone)+'</td><td>'+(f? '<span style="color:'+(f.level==='bad'?'#b00020':'#b07d00')+';font-weight:700">'+esc(f.msg)+'</span>' : '<span style="color:#137333">Theek</span>')+'</td></tr>';
+  var box=document.getElementById('leadsBox'); if(!box) return;
+  var q=(((document.getElementById('leadSearch')||{}).value)||'').toLowerCase();
+  var kind=((document.getElementById('leadKind')||{}).value)||'';
+  var rows=LEADS.filter(function(l){
+    if(kind==='buyer' && !(l.intent==='buyer'||l.intent==='rent-buyer')) return false;
+    if(kind==='seller' && !(l.intent==='seller'||l.intent==='rent-seller')) return false;
+    if(kind==='rent' && String(l.intent).indexOf('rent')!==0) return false;
+    if(q){ var hay=(l.name+' '+l.phone+' '+l.location+' '+l.sector+' '+l.plotNo+' '+l.id).toLowerCase(); if(hay.indexOf(q)<0) return false; }
+    return true;
   });
-  box.innerHTML=html+'</table>'+(LEADS.length>300?'<p style="padding:6px;color:#888">Sirf pehli 300 leads dikhai gayi hain.</p>':'');
+  if(!rows.length){ box.innerHTML='<p style="color:#888;font-size:13px;padding:8px">Is filter mein koi lead nahi — pehle data put karein.</p>'; return; }
+  var viewer=(ggMode()==='viewer');
+  var html='<table><tr><th>Kind</th><th>Location</th><th>Type</th><th>Size</th><th>Price/Budget</th><th>Name</th><th>Phone</th><th>Umar</th><th>Data Check</th><th></th></tr>';
+  rows.slice(0,300).forEach(function(l){
+    var f=leadFlag(l);
+    var isB=(l.intent==='buyer'||l.intent==='rent-buyer');
+    var li=LEADS.indexOf(l);
+    html+='<tr><td>'+esc(l.intent)+'</td><td>'+esc(l.location)+'</td><td>'+esc(l.type)+'</td><td>'+esc(sizeLabel(l.sizeMarla))+'</td><td>'+esc(moneyFmt(l.price))+'</td><td>'+esc(l.name)+'</td><td>'+esc(viewer? maskPhone(l.phone) : (l.phone||''))+'</td><td>'+esc(leadAge(l)||'—')+'</td><td>'+(f? '<span style="color:'+(f.level==='bad'?'#b00020':'#b07d00')+';font-weight:700">'+esc(f.msg)+'</span>' : '<span style="color:#137333">Theek</span>')+'</td><td>'+(isB? '<button class="btn grey" style="padding:4px 9px;font-size:12px" onclick="broadcastReq('+li+')">Requirement Broadcast</button>':'')+'</td></tr>';
+  });
+  box.innerHTML=html+'</table><p style="padding:6px;color:#888">'+(rows.length>300? ('Sirf pehli 300 leads dikhai gayi hain ('+rows.length+' mein se).') : ('Kul '+rows.length+' leads'))+'</p>';
 }
 function toggleLeads(){ document.getElementById('leadsBox').classList.toggle('hidden'); }
 function exportExcel(){
   if(!FILTERED.length){ setStatus('Export ke liye pehle matches hone chahiye.'); return; }
+  if(!canDo('exportX')){ setStatus('Excel Export Pro plan mein hai — pehle Subscription se Pro lein.'); showView('sub'); return; }
   var rows=FILTERED.map(function(m, i){
     return {'#':i+1,'Score':m.score,'Tag':m.tag,'Location':m.buyer.location,'Type':m.seller.type,'Sector':m.seller.sector,'Plot No':m.seller.plotNo,'Size':sizeLabel(m.seller.sizeMarla||m.buyer.sizeMarla),
-      'Buyer Name':m.buyer.name,'Buyer Phone':m.buyer.phone,'Buyer Budget':m.buyer.price,'Seller Name':m.seller.name,'Seller Phone':m.seller.phone,'Seller Demand':m.seller.price,
+      'Buyer Name':m.buyer.name,'Buyer Phone':m.buyer.phone,'Buyer Budget':m.buyer.price,'Seller Name':m.seller.name,'Seller Phone':((document.getElementById('fHideNum') && document.getElementById('fHideNum').checked)? 'Chhupaya gaya' : m.seller.phone),'Seller Demand':m.seller.price,
       'Seller Verify Message':sellerVerifyMsg(m, brand),'Buyer Forward Message':buyerForwardMsg(m, brand),'Status':getStatus(m),'Data Check':flagText(m),'Note':''};
   });
   var ws=XLSX.utils.json_to_sheet(rows);
@@ -1144,10 +1392,45 @@ function masterAdd(){
   setStatus('Master list update ho gayi: '+loc+' Sector '+sec+' → '+sizes.map(function(x){ return sizeLabel(x); }).join(', '));
 }
 function masterDel(i){ MASTER.splice(i,1); saveMaster(); renderMaster(); updateStats(); applyFilters(true); renderLeads(); }
+// ===== v12: Deal Pipeline + Manual Add =====
+function renderPipeline(){
+  var list=document.getElementById('pipeList'), sum=document.getElementById('pipeSummary');
+  if(!list || !sum) return;
+  if(!canDo('pipeline')) return;
+  var counts={}, bandCommission=0, bandCount=0, html='', staged=0;
+  MATCHES.forEach(function(m,i){
+    if(m.kind==='rent' && !canDo('rent')) return;
+    var rec=statusRec(m); var st=rec.s;
+    if(st) counts[st]=(counts[st]||0)+1;
+    if(!st) return;
+    staged++;
+    var comm=parseFloat(String(rec.c).replace(/[^0-9.]/g,''))||0;
+    if(st==='Deal Band'){ bandCount++; bandCommission+=comm; }
+    html+='<div class="match"><div style="font-weight:700">'+esc(m.seller.type||m.buyer.type)+' · '+esc(sizeLabel(m.seller.sizeMarla||m.buyer.sizeMarla))+(m.seller.sector?' · Sector '+esc(m.seller.sector):'')+(m.seller.plotNo?' · Plot '+esc(m.seller.plotNo):'')+' — '+esc(moneyFmt(m.seller.price))+(m.kind==='rent'?' (Rent)':'')+'</div>'+
+    '<div style="font-size:13px;color:#555;margin:4px 0">Buyer: <b>'+esc(m.buyer.name||'—')+'</b> ('+esc(m.buyer.phone||'')+') · Seller: <b>'+esc(m.seller.name||'—')+'</b> ('+esc(m.seller.phone||'')+')</div>'+
+    '<div class="actions">'+stageSelectHtml(m, i, 'MATCHES')+
+    (st==='Deal Band'? '<span style="font-size:13px">Commission Rs: <input type="text" value="'+esc(rec.c)+'" style="width:110px;padding:7px" onchange="setCommission(MATCHES['+i+'], this.value)"></span>':'')+
+    '</div></div>';
+  });
+  var chips=STAGES.slice(1).map(function(s){ return '<span class="badge" style="background:#5b0f22;margin-right:5px">'+s+': '+(counts[s]||0)+'</span>'; }).join('');
+  sum.innerHTML='<div class="badges">'+chips+'</div><p style="font-size:13.5px;margin-top:6px">Band Deals: <b>'+bandCount+'</b> · Kul Commission: <b>Rs '+bandCommission.toLocaleString('en-US')+'</b></p>';
+  list.innerHTML= staged? html : '<p style="color:#888;padding:8px">Abhi koi deal pipeline mein nahi — Matches mein ja kar kisi match ka stage badlein (Verify Bheja, Forward, Visit, Deal Band).</p>';
+}
+function manualAdd(){
+  if(!canDo('manual')){ setStatus('Manual Lead Add Pro plan mein hai.'); return; }
+  var g=function(id){ var el=document.getElementById(id); return el? el.value.trim() : ''; };
+  var price=parseFloat(g('maPrice').replace(/[^0-9.]/g,''))||null;
+  var size=parseFloat(g('maSize'))||null;
+  var lead={ id:'M-'+Date.now(), intent:g('maSide'), type:g('maType'), location:g('maLoc'), sector:g('maSector').toUpperCase(), plotNo:g('maPlot'), sizeMarla:size, price:price, name:g('maName'), phone:cleanPhone(g('maPhone')), date:new Date().toISOString().slice(0,10), source:'Manual', detail:'Manual entry — '+g('maName') };
+  if(!lead.location && !lead.phone){ setStatus('Kam az kam Location ya Phone likhein.'); return; }
+  addLeads([lead]);
+  showView('home');
+}
 loadMaster();
 
 renderMaster();
 restoreData();
+showView('home');
 </script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -1163,7 +1446,7 @@ var FIREBASE_CONFIG = {
   appId: "1:336120402191:web:fc4cdc8cb80ba2ea02ae7a"
 };
 var GG_ADMIN_EMAIL = 'globalgurupro@gmail.com';
-var FB = { ready:false, auth:null, db:null, user:null, license:null };
+var FB = { ready:false, auth:null, db:null, user:null, license:null, mode:'out', plan:null };
 
 function fbConfigured(){ return !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey.indexOf('__FB_')!==0); }
 function showGate(msg){
@@ -1179,6 +1462,8 @@ function ggSignIn(){
 function ggSignOut(){ if(FB.auth) FB.auth.signOut(); }
 function copyRaast(){ if(navigator.clipboard) navigator.clipboard.writeText('03027374880'); try{ setStatus('Raast number copy ho gaya: 0302 7374880'); }catch(e){} }
 
+function localDateStr(d){ d=d||new Date(); var m=('0'+(d.getMonth()+1)).slice(-2), day=('0'+d.getDate()).slice(-2); return d.getFullYear()+'-'+m+'-'+day; }
+function tsToLocalDate(ts){ var d=new Date(ts); return isNaN(d.getTime())? String(ts||'').slice(0,10) : localDateStr(d); }
 function leadDocId(l){ return String((l&&l.id)||'x').replace(/[\/]/g,'-'); }
 function sanitizeLead(l){
   var o={};
@@ -1234,7 +1519,8 @@ async function cloudBootstrap(){
       persistLeads();
       setStatus('Cloud se aap ka data load ho gaya: '+LEADS.length+' leads, '+MATCHES.length+' matches.');
     } else if(LEADS.length){
-      await window.cloudOnLeadsAdded(LEADS);
+      var toUp=LEADS.filter(function(l){ return String(l.id).indexOf('D-')!==0; });
+      if(toUp.length) await window.cloudOnLeadsAdded(toUp);
       setStatus('Aap ka mojooda data cloud par mehfooz kar diya gaya hai ('+LEADS.length+' leads). Ab ye har device par login se milega.');
     }
   }catch(e){ console.log('cloud bootstrap error', e); }
@@ -1242,31 +1528,47 @@ async function cloudBootstrap(){
 
 function renderUserBar(){
   var bar=document.getElementById('userBar'); if(!bar) return;
-  if(!FB.user){ bar.style.display='none'; document.getElementById('adminCard').style.display='none'; var pc0=document.getElementById('payCard'); if(pc0) pc0.style.display='none'; var sc0=document.getElementById('settingsCard'); if(sc0) sc0.style.display='none'; return; }
+  if(!FB.user){ bar.style.display='none'; return; }
   bar.style.display='flex';
   document.getElementById('userEmail').textContent=FB.user.email;
   var info='License check ho raha hai...';
-  if(FB.user.email===GG_ADMIN_EMAIL) info='GG Admin';
-  else if(FB.license) info=(FB.license.plan||'Plan')+' · Expiry: '+(FB.license.expiry||'—');
+  if(FB.mode==='admin') info='GG Admin';
+  else if(FB.mode==='user') info=(FB.plan||'Plan')+' · Expiry: '+((FB.license&&FB.license.expiry)||'—');
+  else if(FB.mode==='viewer') info=FB.license? ('Subscription khatam ('+(FB.license.expiry||'')+') — Viewer Mode') : 'Viewer Mode — subscription nahi hai';
   document.getElementById('userPlan').textContent=info;
-  var pc=document.getElementById('payCard'); if(pc) pc.style.display='';
-  var sc1=document.getElementById('settingsCard'); if(sc1) sc1.style.display='';
   var ppi=document.getElementById('payPlanInfo'); if(ppi) ppi.textContent='Aap ka mojooda plan: '+info;
-  var isAdmin=(FB.user.email===GG_ADMIN_EMAIL);
-  document.getElementById('adminCard').style.display=isAdmin?'':'none';
-  if(isAdmin){ loadLicenseList(); loadPayments(); }
+  applyAccess();
+  if(FB.mode==='admin'){ loadLicenseList(); loadPayments(); }
 }
-
+function applyAccess(){
+  var vb=document.getElementById('viewerBar'); if(vb) vb.style.display=(FB.mode==='viewer')?'block':'none';
+  var da=document.getElementById('dAdmin'); if(da) da.style.display=(FB.mode==='admin')?'':'none';
+  var du=document.getElementById('dUser'); if(du && FB.user) du.textContent=FB.user.email;
+  var dbr=document.getElementById('dBrand'); if(dbr && typeof brand!=='undefined' && brand) dbr.textContent=brand;
+  var eb=document.getElementById('exportBtn'); if(eb) eb.textContent=canDo('exportX')? 'Matches Excel Export' : '🔒 Matches Excel Export (Pro)';
+  var hn=document.getElementById('fHideNum'), hl=document.getElementById('hideNumLock');
+  if(hn){ hn.disabled=!canDo('hideNum'); if(hl) hl.textContent=canDo('hideNum')?'':'🔒 Pro'; }
+  var ml=document.getElementById('manualLock'), mf=document.getElementById('manualForm');
+  if(ml&&mf){ var okm=canDo('manual'); ml.style.display=okm?'none':''; mf.style.display=okm?'':'none'; }
+  var pl=document.getElementById('pipelineLock'), pb=document.getElementById('pipelineBody');
+  if(pl&&pb){ var okp=canDo('pipeline'); pl.style.display=okp?'none':''; pb.style.display=okp?'':'none'; }
+  showView((typeof CURVIEW!=='undefined' && CURVIEW) || 'home');
+  if(typeof applyFilters==='function') applyFilters(true);
+  if(typeof updateMenuBadges==='function') updateMenuBadges();
+}
 async function adminAddLicense(){
   var email=document.getElementById('licEmail').value.trim().toLowerCase();
   var plan=document.getElementById('licPlan').value;
   var months=parseInt(document.getElementById('licMonths').value||'1',10);
   var brand=document.getElementById('licBrand').value.trim();
+  var phone=document.getElementById('licPhone').value.trim();
   if(!email){ document.getElementById('licMsg').textContent='Pehle adviser ki Gmail likhein.'; return; }
   var exp=new Date(); exp.setMonth(exp.getMonth()+months);
-  var expStr=exp.toISOString().slice(0,10);
+  var expStr=localDateStr(exp);
   try{
-    await FB.db.collection('licenses').doc(email).set({ active:true, plan:plan, brand:brand||'', expiry:expStr, updatedAt:new Date().toISOString() });
+    var ref=FB.db.collection('licenses').doc(email);
+    var cur=await ref.get(); var old=cur.exists? cur.data(): {};
+    await ref.set({ active:true, plan:plan, brand:brand||old.brand||'', phone:phone||old.phone||'', expiry:expStr, updatedAt:new Date().toISOString() });
     document.getElementById('licMsg').textContent='License tayyar: '+email+' ('+plan+', expiry '+expStr+')';
     loadLicenseList();
   }catch(e){ document.getElementById('licMsg').textContent='Masla: '+e.message; }
@@ -1279,26 +1581,80 @@ async function loadLicenseList(){
   var box=document.getElementById('licList'); if(!box) return;
   try{
     var snap=await FB.db.collection('licenses').get();
-    if(snap.empty){ box.innerHTML='<p style="color:#888">Abhi koi license nahi bana.</p>'; return; }
-    var html='<table><tr><th>Email</th><th>Plan</th><th>Brand</th><th>Expiry</th><th>Active</th><th></th></tr>';
+    if(snap.empty){ box.innerHTML='<p style="color:#888">Abhi koi license nahi bana.</p>'; loadKhata(); return; }
+    var today=localDateStr();
+    var html='<table><tr><th>Email</th><th>WhatsApp</th><th>Plan</th><th>Brand</th><th>Expiry</th><th>Status</th><th>Renew</th><th></th></tr>';
     snap.forEach(function(d){
       var v=d.data();
-      html+='<tr><td>'+d.id+'</td><td>'+(v.plan||'')+'</td><td>'+(v.brand||'')+'</td><td>'+(v.expiry||'')+'</td><td>'+(v.active?'Han':'Nahi')+'</td><td><button class="btn grey" onclick="adminToggleLicense(\''+d.id+'\','+(!v.active)+')">'+(v.active?'Band Karo':'Chalu Karo')+'</button></td></tr>';
+      var expired=v.expiry && v.expiry<today;
+      var status=!v.active? 'Band' : (expired? 'Expire Ho Gaya' : 'Active');
+      var rid=d.id.replace(/[^a-zA-Z0-9]/g,'_');
+      var waBtn=v.phone? ' <a class="btn green" style="padding:4px 9px;font-size:12px;text-decoration:none" target="_blank" href="'+waLink(v.phone, 'Assalam o Alaikum, aap ka GG Property Match account ('+(v.plan||'')+') active hai — expiry '+(v.expiry||'')+'. App khol kar login karein: https://globalgurubusiness.github.io/gg-property-match/ — Global Guru')+'">WhatsApp Khabar</a>':'';
+      html+='<tr><td>'+d.id+'</td><td>'+(v.phone||'—')+'</td><td>'+(v.plan||'')+'</td><td>'+(v.brand||'')+'</td><td>'+(v.expiry||'')+'</td><td>'+status+'</td>'+
+      '<td><span style="white-space:nowrap"><select id="rn_'+rid+'"><option value="1">1 Mah</option><option value="3">3 Mah</option><option value="6">6 Mah</option><option value="12">12 Mah</option></select> <button class="btn gold" style="padding:4px 9px;font-size:12px" onclick="adminRenewLicense(\''+d.id+'\')">Renew</button></span></td>'+
+      '<td><span style="white-space:nowrap"><button class="btn grey" style="padding:4px 9px;font-size:12px" onclick="adminToggleLicense(\''+d.id+'\','+(!v.active)+')">'+(v.active?'Band Karo':'Chalu Karo')+'</button>'+waBtn+'</span></td></tr>';
     });
     html+='</table>';
     box.innerHTML=html;
+    loadKhata();
   }catch(e){ box.innerHTML='List load nahi hui: '+e.message; }
 }
-
+async function adminRenewLicense(email){
+  try{
+    var ref=FB.db.collection('licenses').doc(email);
+    var doc=await ref.get(); if(!doc.exists) return;
+    var v=doc.data();
+    var sel=document.getElementById('rn_'+email.replace(/[^a-zA-Z0-9]/g,'_'));
+    var months=sel? parseInt(sel.value||'1',10):1;
+    var today=localDateStr();
+    var base=(v.expiry && v.expiry>today)? new Date(v.expiry+'T12:00:00') : new Date();
+    base.setMonth(base.getMonth()+months);
+    await ref.update({ active:true, expiry: localDateStr(base), updatedAt:new Date().toISOString() });
+    document.getElementById('licMsg').textContent='Renew ho gaya: '+email+' — nayi expiry '+localDateStr(base);
+    loadLicenseList();
+  }catch(e){ document.getElementById('licMsg').textContent='Renew masla: '+e.message; }
+}
+async function loadKhata(){
+  var box=document.getElementById('khataBox'); if(!box) return;
+  if(!(FB.user && FB.user.email===GG_ADMIN_EMAIL)) return;
+  try{
+    var today=localDateStr(); var thisMonth=today.slice(0,7);
+    var licSnap=await FB.db.collection('licenses').get();
+    var active=0, expiring=[];
+    licSnap.forEach(function(d){
+      var v=d.data();
+      if(v.active && v.expiry && v.expiry>=today){
+        active++;
+        var days=Math.round((new Date(v.expiry+'T12:00:00')-new Date(today+'T12:00:00'))/86400000);
+        if(days<=7) expiring.push(d.id+' ('+(v.plan||'')+', '+v.expiry+')');
+      }
+    });
+    var paySnap=await FB.db.collection('payments').get();
+    var totalFees=0, monthFees=0, pending=0;
+    paySnap.forEach(function(d){
+      var v=d.data();
+      if(v.status==='approved'){ var amt=Number(v.amount)||0; totalFees+=amt; if(String(v.approvedAt||'').slice(0,7)===thisMonth) monthFees+=amt; }
+      if(v.status==='pending') pending++;
+    });
+    box.innerHTML='<div class="khataStats">'+
+      '<div class="stat"><b>'+active+'</b><span>Active Users</span></div>'+
+      '<div class="stat"><b>Rs '+monthFees.toLocaleString('en-US')+'</b><span>Is Mahine Ki Fees</span></div>'+
+      '<div class="stat"><b>Rs '+totalFees.toLocaleString('en-US')+'</b><span>Kul Fees Ab Tak</span></div>'+
+      '<div class="stat"><b style="color:#b00020">'+expiring.length+'</b><span>Expire Hone Wale (7 din)</span></div>'+
+      '<div class="stat"><b>'+pending+'</b><span>Pending Screenshots</span></div></div>'+
+      (expiring.length? '<p style="font-size:13px;color:#b00020"><b>Renewal follow-up:</b> '+expiring.join(' · ')+'</p>' : '<p style="font-size:13px;color:#888">Is hafte koi license expire nahi ho raha.</p>');
+  }catch(e){ box.innerHTML='Khata load nahi hua: '+(e.message||e); }
+}
 async function checkAccess(user){
-  if(user.email===GG_ADMIN_EMAIL){ FB.license={plan:'Admin'}; return true; }
+  if(user.email===GG_ADMIN_EMAIL){ FB.license={plan:'Admin'}; FB.mode='admin'; FB.plan='Admin'; return 'admin'; }
   var doc=await FB.db.collection('licenses').doc(user.email.toLowerCase()).get();
-  if(!doc.exists) return false;
+  if(!doc.exists){ FB.mode='viewer'; FB.plan=null; FB.license=null; return 'viewer'; }
   var lic=doc.data(); FB.license=lic;
-  if(!lic.active) return false;
-  if(lic.expiry && lic.expiry < new Date().toISOString().slice(0,10)) return false;
+  var expired=lic.expiry && lic.expiry < localDateStr();
+  if(!lic.active || expired){ FB.mode='viewer'; FB.plan=null; return 'viewer'; }
+  FB.mode='user'; FB.plan=lic.plan||'Starter';
   if(lic.brand){ var bi=document.getElementById('brandInput'); if(bi){ bi.value=lic.brand; } try{ brand=lic.brand; }catch(e){} }
-  return true;
+  return 'user';
 }
 
 function uploadShot(input, msgId){
@@ -1326,22 +1682,51 @@ function uploadShot(input, msgId){
   };
   reader.readAsDataURL(input.files[0]);
 }
+window.__payImgs={};
+function showPayImg(id){ var src=window.__payImgs[id]; if(!src) return; var m=document.getElementById('imgModal'), im=document.getElementById('imgModalImg'); if(m&&im){ im.src=src; m.style.display='flex'; } }
 async function loadPayments(){
   var box=document.getElementById('payList'); if(!box) return;
   if(!(FB.user && FB.user.email===GG_ADMIN_EMAIL)) return;
   try{
     var snap=await FB.db.collection('payments').orderBy('ts','desc').limit(30).get();
     if(snap.empty){ box.innerHTML='<p style="color:#888">Abhi koi screenshot nahi aya.</p>'; return; }
-    var html='<table><tr><th>Screenshot</th><th>Email</th><th>Tareekh</th><th>Status</th><th></th></tr>';
+    var html='<table><tr><th>Screenshot</th><th>Email</th><th>Tareekh</th><th>Status</th><th>Approve (rakam + plan)</th></tr>';
     snap.forEach(function(d){
       var v=d.data();
-      html+='<tr><td><a href="'+v.img+'" target="_blank" rel="noopener"><img src="'+v.img+'" style="height:54px;border-radius:6px;border:1px solid #ddd" alt="screenshot"></a></td><td>'+v.email+'</td><td>'+String(v.ts||'').slice(0,10)+'</td><td>'+(v.status||'pending')+'</td><td><button class="btn grey" style="padding:4px 9px;font-size:12px" onclick="payToLicense(\''+v.email+'\')">License Banao</button> <button class="btn grey" style="padding:4px 9px;font-size:12px" onclick="payDone(\''+d.id+'\')">Done</button></td></tr>';
+      window.__payImgs[d.id]=v.img;
+      var st=v.status||'pending';
+      var ctl='';
+      if(st==='pending'){
+        ctl='<span style="white-space:nowrap">Rs <input type="text" id="amt_'+d.id+'" placeholder="Rakam" style="width:80px;padding:5px"> <select id="pln_'+d.id+'"><option>Starter</option><option>Pro</option><option>White-Label</option></select> <select id="mon_'+d.id+'"><option value="1">1 Mah</option><option value="3">3 Mah</option><option value="6">6 Mah</option><option value="12">12 Mah</option></select> <button class="btn green" style="padding:5px 10px;font-size:12px" onclick="payApprove(\''+d.id+'\',\''+v.email+'\')">Approve — License Chalu Karo</button> <button class="btn grey" style="padding:5px 10px;font-size:12px" onclick="payClose(\''+d.id+'\')">Band</button></span>';
+      } else if(st==='approved'){
+        ctl='Fees Rs '+(Number(v.amount)||0).toLocaleString('en-US')+' · '+(v.plan||'')+' · '+(v.months||'')+' mahine';
+      } else if(st==='done'){
+        ctl='Ho gaya (purana)';
+      } else { ctl='Band kar diya gaya'; }
+      html+='<tr><td><img src="'+v.img+'" onclick="showPayImg(\''+d.id+'\')" style="height:54px;border-radius:6px;border:1px solid #ddd;cursor:zoom-in" alt="screenshot"></td><td>'+v.email+'</td><td>'+tsToLocalDate(v.ts)+'</td><td>'+st+'</td><td>'+ctl+'</td></tr>';
     });
     box.innerHTML=html+'</table>';
   }catch(e){ box.innerHTML='Payments load nahi hue: '+(e.message||e); }
 }
-function payToLicense(email){ var le=document.getElementById('licEmail'); if(le){ le.value=email; le.scrollIntoView({behavior:'smooth', block:'center'}); } }
-async function payDone(id){ try{ await FB.db.collection('payments').doc(id).update({ status:'done' }); loadPayments(); }catch(e){} }
+async function payApprove(id, email){
+  var amtEl=document.getElementById('amt_'+id);
+  var amt=amtEl? parseFloat(String(amtEl.value).replace(/[^0-9.]/g,'')):NaN;
+  if(!amt || amt<=0){ alert('Pehle screenshot bara karke dekhein, phir fees ki rakam likhein.'); return; }
+  var plan=document.getElementById('pln_'+id).value;
+  var months=parseInt(document.getElementById('mon_'+id).value||'1',10);
+  try{
+    var ref=FB.db.collection('licenses').doc(email.toLowerCase());
+    var cur=await ref.get(); var old=cur.exists? cur.data(): {};
+    var base=new Date();
+    if(old.expiry && old.expiry>localDateStr() && old.active){ base=new Date(old.expiry+'T12:00:00'); }
+    base.setMonth(base.getMonth()+months);
+    var expStr=localDateStr(base);
+    await ref.set({ active:true, plan:plan, brand:old.brand||'', phone:old.phone||'', expiry:expStr, updatedAt:new Date().toISOString() });
+    await FB.db.collection('payments').doc(id).update({ status:'approved', amount:amt, plan:plan, months:months, approvedAt:localDateStr() });
+    loadPayments(); loadLicenseList();
+  }catch(e){ alert('Approve nahi hua: '+(e.message||e)); }
+}
+async function payClose(id){ try{ await FB.db.collection('payments').doc(id).update({ status:'closed' }); loadPayments(); loadKhata(); }catch(e){} }
 async function saveSettings(){
   var b=document.getElementById('brandInput').value.trim()||'F&B Associate';
   brand=b; try{ localStorage.setItem('ggpm_brand', b); }catch(e){}
@@ -1372,17 +1757,17 @@ function initFirebase(){
   FB.auth=firebase.auth(); FB.db=firebase.firestore();
   FB.auth.onAuthStateChanged(async function(user){
     FB.user=user||null;
-    if(!user){ FB.ready=false; renderUserBar(); var gu0=document.getElementById('gateUpload'); if(gu0) gu0.style.display='none'; showGate('Aage barhne ke liye apne Google account se login karein.'); return; }
-    var ok=false;
-    try{ ok=await checkAccess(user); }
-    catch(e){ showGate('License check mein masla: '+(e.message||e)); renderUserBar(); return; }
-    if(!ok){
-      FB.ready=false; renderUserBar();
-      var gu1=document.getElementById('gateUpload'); if(gu1) gu1.style.display='block';
-      showGate('Aap ka account ('+user.email+') abhi active nahi hai ya subscription khatam ho chuki hai. GG se rabta karein — WhatsApp 0311 624 6000.');
+    if(!user){ FB.ready=false; FB.mode='out'; FB.plan=null; FB.license=null; renderUserBar(); var vb0=document.getElementById('viewerBar'); if(vb0) vb0.style.display='none'; showGate('Aage barhne ke liye apne Google account se login karein.'); return; }
+    var mode='viewer';
+    try{ mode=await checkAccess(user); }
+    catch(e){ FB.mode='viewer'; FB.plan=null; hideGate(); renderUserBar(); setStatus('License check mein masla: '+(e.message||e)); return; }
+    hideGate(); renderUserBar(); loadProfile();
+    if(mode==='viewer'){
+      FB.ready=false;
+      setStatus('Aap Viewer Mode mein hain — demo ya apna data daal kar matches dekh sakte hain; numbers aur saare features subscription se khulenge.');
       return;
     }
-    FB.ready=true; hideGate(); renderUserBar(); loadProfile(); cloudBootstrap();
+    FB.ready=true; cloudBootstrap();
   });
 }
 window.addEventListener('load', function(){ setTimeout(initFirebase, 400); });
