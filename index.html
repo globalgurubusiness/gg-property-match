@@ -528,7 +528,7 @@ function sizeToMarla(text){
   return null;
 }
 function sizeLabel(marla){
-  if(marla==null) return "Size —";
+  if(marla==null || String(marla).trim()==='' || isNaN(Number(marla))) return "Size —";
   if(marla>=20 && marla%20===0) return (marla/20)+" Kanal";
   return marla+" Marla";
 }
