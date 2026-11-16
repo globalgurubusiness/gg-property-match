@@ -448,6 +448,7 @@ footer{font-size:11px;padding:14px}
 <h2>Data Check (Master List)</h2>
 <div class="note">Is list se app har lead ko check karti hai: jis sector mein jo cutting <b>hoti hi nahi</b>, woh lead <b>shakki</b> mark ho jati hai — match forward karne se pehle pata chal jata hai ke data ghalat hai. DHA Multan ki list <b>official maps</b> (eapp.dhamultan.org) se hai, baqi Multan ki schemes bhi shamil hain. <b>Sakht Check</b> wali par ghalat cutting GHALAT flag hoti hai; <b>Sirf Warning</b> wali (purani colonies jahan kate hue plots aam hain) par sirf peeli warning ati hai, data nahi rukta; <b>ILLEGAL</b> wali MDA ki illegal list se hain. Jo theek karna ho, neeche se kar dein — check usi waqt badal jayega.</div>
 <div id="badBox"></div>
+<div id="classBox"></div>
 <div id="masterBox" class="tblwrap"></div>
 <div class="row" style="margin-top:10px">
 <input type="text" id="mLoc" placeholder="Location (masalan: DHA Multan)" style="flex:1;min-width:150px">
@@ -713,8 +714,25 @@ function dedupeLeads(leads){
   }
   return out;
 }
+function normName(n){ return String(n||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+function sameParty(b,s){
+  var bn=normName(b.name), sn=normName(s.name);
+  if(!bn || !sn || bn!==sn) return false;
+  if(b.plotNo && s.plotNo && String(b.plotNo)===String(s.plotNo)) return true;
+  if(/^\d{10,}$/.test(bn)) return true;
+  return false;
+}
+function locConflict(l){ return !!l && l.location==='DHA Multan' && /phase 9 (prism|town)|lahore/i.test(String(l.detail||'')); }
+function intentSuspect(l){
+  var d=String((l&&l.detail)||'').toLowerCase(); if(!d) return false;
+  if(l.intent==='buyer' || l.intent==='rent-buyer') return /confirmed inventory|confirm inventory|inventory|for sale|available|demand|possession|possion/.test(d);
+  if(l.intent==='seller' || l.intent==='rent-seller') return /plot required|required plot|chahiye/.test(d);
+  return false;
+}
 function matchLeads(leads){
   function cmp(a,b2){
+    var pa=(a.buyer.phone && a.seller.phone)?0:1, pb=(b2.buyer.phone && b2.seller.phone)?0:1;
+    if(pa!==pb) return pa-pb;
     if(b2.score!==a.score) return b2.score-a.score;
     var ta=a.tag==="Same Plot"?0:1, tb=b2.tag==="Same Plot"?0:1;
     if(ta!==tb) return ta-tb;
@@ -739,6 +757,9 @@ function matchLeads(leads){
       if(!b.location){ sellers.forEach(function(s){ if(!seenS[s.id]){seenS[s.id]=1; pool.push(s);} }); }
       pool.forEach(function(s){
         if(b.phone && s.phone && b.phone===s.phone) return;
+      if(sameParty(b,s)) return;
+      if(locConflict(b) || locConflict(s)) return;
+      if(intentSuspect(b) || intentSuspect(s)) return;
         var score=0;
         if(!b.location || !s.location || b.location!==s.location) return;
         score+=35;
@@ -870,6 +891,7 @@ function showView(v){
   toggleDrawer(false);
   if(v==='pipeline') renderPipeline();
   if(v==='leads') renderLeads();
+  if(v==='check') renderBadBox();
   try{ window.scrollTo({top:0, behavior:'smooth'}); }catch(e){}
 }
 function toggleDrawer(open){
@@ -1331,6 +1353,25 @@ function stageSelectHtml(m, idx, arrName){
   var opts=STAGES.map(function(o){ return '<option '+(st===o?'selected':'')+' value="'+o+'">'+(o||'Stage: Naya')+'</option>'; }).join('');
   return '<select onchange="setMatchStatus('+arrName+'['+idx+'], this.value)">'+opts+'</select>';
 }
+function searchTokens(q){ return String(q||'').toLowerCase().split(/\s+/).filter(Boolean); }
+function hayMatch(hay, q){
+  var toks=searchTokens(q); if(!toks.length) return true;
+  var h=String(hay||'').toLowerCase();
+  var hd=h.replace(/[^0-9]/g,'');
+  for(var i=0;i<toks.length;i++){
+    var t=toks[i];
+    if(h.indexOf(t)>=0) continue;
+    var td=t.replace(/[^0-9]/g,''), ok=false;
+    if(td.length>=4){
+      var cands=[td];
+      if(td.charAt(0)==='0') cands.push('92'+td.slice(1));
+      if(td.indexOf('92')===0) cands.push(td.slice(2));
+      for(var j=0;j<cands.length;j++){ if(hd.indexOf(cands[j])>=0){ ok=true; break; } }
+    }
+    if(!ok) return false;
+  }
+  return true;
+}
 function applyFilters(reset){
   var q=document.getElementById('fSearch').value.toLowerCase();
   var loc=document.getElementById('fLoc').value;
@@ -1344,8 +1385,8 @@ function applyFilters(reset){
     if(tag && m.tag!==tag) return false;
     if(badOnly && !leadFlag(m.buyer) && !leadFlag(m.seller)) return false;
     if(q){
-      var hay=(m.buyer.name+' '+m.buyer.phone+' '+m.seller.name+' '+m.seller.phone+' '+m.seller.plotNo+' '+m.seller.sector+' '+m.buyer.location).toLowerCase();
-      if(hay.indexOf(q)<0) return false;
+      var hay=[m.buyer.name,m.buyer.phone,m.seller.name,m.seller.phone,m.buyer.location,m.seller.location,m.buyer.sector,m.seller.sector,m.buyer.plotNo,m.seller.plotNo,m.buyer.type,m.seller.type,sizeLabel(m.seller.sizeMarla||m.buyer.sizeMarla),m.buyer.detail,m.seller.detail].join(' ');
+      if(!hayMatch(hay,q)) return false;
     }
     return true;
   });
@@ -1370,6 +1411,81 @@ function freshMatches(){
   var ms=matchLeads(LEADS);
   return ms.filter(function(m){ var fb=leadFlag(m.buyer), fs=leadFlag(m.seller); return !(fb&&fb.level==='bad') && !(fs&&fs.level==='bad'); });
 }
+var DHA_SECTORS=['A','B','B1','B2','C','D','E','E1','E2','F','G','H','I','K','L','M','N','O','P','Q','R','S','T','U','V','W','W1','W2','X','Y'];
+function leadClass(l){
+  var bad=[];
+  var f=leadFlag(l);
+  if(f && (f.level==='bad' || f.level==='illegal')) bad.push(f.msg);
+  if(l.sizeMarla && Number(l.sizeMarla)>100) bad.push('Size ghair-maamooli hai ('+sizeLabel(l.sizeMarla)+') — itna bara size aam nahi hota');
+  if(locConflict(l)) bad.push('Location shakki — detail mein doosri scheme/sheher (Phase 9 Prism / Lahore) ka zikr hai lekin location DHA Multan lagi hai');
+  if(intentSuspect(l)) bad.push((l.intent==='buyer'||l.intent==='rent-buyer') ? 'Ye post seller wali lagti hai (inventory / demand ki zuban) lekin buyer bani hui hai' : 'Ye post buyer wali lagti hai lekin seller bani hui hai');
+  if(l.location==='DHA Multan' && l.sector){
+    var sl=String(l.sector).replace(/[^A-Za-z]/g,'').toUpperCase();
+    if(sl && DHA_SECTORS.indexOf(sl)<0 && !(l.type==='House' && /villa/i.test(String(l.detail||'')))) bad.push('Sector '+l.sector+' DHA Multan mein hota hi nahi');
+  }
+  if(bad.length) return {cls:'bad', reasons:bad};
+  var miss=[];
+  if(!l.phone) miss.push('Phone nahi');
+  if(!l.location) miss.push('Location nahi');
+  if(!l.sector) miss.push('Sector nahi');
+  if(!l.plotNo) miss.push('Plot No nahi');
+  if(!l.sizeMarla) miss.push('Size nahi');
+  if(!l.price) miss.push('Price/Budget nahi');
+  if(miss.length) return {cls:'miss', reasons:miss};
+  return {cls:'ok', reasons:[]};
+}
+function classCellHtml(l,f){
+  var c=leadClass(l), h='';
+  if(c.cls==='ok') h='<span style="color:#137333;font-weight:700">\u2705 Theek</span>';
+  else if(c.cls==='miss') h='<span style="color:#b07d00;font-weight:700">\u274C Adhoori</span><br><span style="font-size:11.5px;color:#888">'+esc(c.reasons.join(', '))+'</span>';
+  else h='<span style="color:#b00020;font-weight:700">\u26A0\uFE0F Ghalat</span><br><span style="font-size:11.5px;color:#888">'+esc(c.reasons.join(', '))+'</span>';
+  if(f && c.cls!=='bad') h+='<br><span style="color:'+(f.level==='bad'||f.level==='illegal'?'#b00020':'#b07d00')+';font-size:11.5px">\u26A0 '+esc(f.msg)+'</span>';
+  return h;
+}
+function renderClassBox(){
+  var box=document.getElementById('classBox'); if(!box) return;
+  if(!LEADS.length){ box.innerHTML=''; return; }
+  var counts={ok:0,miss:0,bad:0};
+  LEADS.forEach(function(l){ counts[leadClass(l).cls]++; });
+  var cur=window.__clsFilter||'bad';
+  var rows=LEADS.filter(function(l){ return leadClass(l).cls===cur; });
+  var viewer=(ggMode()==='viewer');
+  var canDel=(cur!=='ok' && !viewer);
+  var h='<div class="badbox" style="margin-top:10px"><div><b>Data Classes:</b> <span style="color:#137333;font-weight:700">\u2705 Theek '+counts.ok+'</span> \u00B7 <span style="color:#b07d00;font-weight:700">\u274C Adhoori '+counts.miss+'</span> \u00B7 <span style="color:#b00020;font-weight:700">\u26A0\uFE0F Ghalat '+counts.bad+'</span><br><span style="font-size:12.5px;color:#666">Har lead khud in teen classes mein se aik mein hai. Adhoori aur Ghalat leads ko tick karke delete kar dein \u2014 app halki rahe gi aur matches saaf hon ge.</span></div></div>';
+  h+='<div class="row" style="margin:8px 0"><button class="btn '+(cur==='ok'?'gold':'grey')+'" onclick="setClsFilter(\'ok\')">\u2705 Theek ('+counts.ok+')</button><button class="btn '+(cur==='miss'?'gold':'grey')+'" onclick="setClsFilter(\'miss\')">\u274C Adhoori ('+counts.miss+')</button><button class="btn '+(cur==='bad'?'gold':'grey')+'" onclick="setClsFilter(\'bad\')">\u26A0\uFE0F Ghalat ('+counts.bad+')</button>'+(canDel? '<button class="btn" style="background:#b00020" onclick="deleteClassSelected()">Tick Wale Delete Karo</button>' : '')+'</div>';
+  if(!rows.length){ box.innerHTML=h+'<p style="color:#888;font-size:13px">Is class mein koi lead nahi.</p>'; return; }
+  h+='<div class="tblwrap"><table><tr>'+(canDel? '<th><input type="checkbox" id="clsAll" onclick="clsToggleAll(this)"></th>' : '')+'<th>Kind</th><th>Location</th><th>Sector</th><th>Plot</th><th>Size</th><th>Price</th><th>Name</th><th>Phone</th><th>Wajah</th></tr>';
+  rows.slice(0,300).forEach(function(l){
+    var c=leadClass(l);
+    h+='<tr>'+(canDel? '<td><input type="checkbox" class="clsChk" value="'+esc(l.id)+'"></td>' : '')+'<td>'+esc(l.intent)+'</td><td>'+esc(l.location||'\u2014')+'</td><td>'+esc(l.sector||'\u2014')+'</td><td>'+esc(l.plotNo||'\u2014')+'</td><td>'+esc(sizeLabel(l.sizeMarla))+'</td><td>'+esc(moneyFmt(l.price))+'</td><td>'+esc(l.name||'\u2014')+'</td><td>'+esc(l.phone||'\u2014')+'</td><td style="font-size:12px">'+esc(c.reasons.join(' \u00B7 '))+'</td></tr>';
+  });
+  h+='</table></div><p style="padding:6px;color:#888;font-size:12.5px">'+(rows.length>300? ('Sirf pehli 300 dikhai gayi hain ('+rows.length+' mein se).') : ('Kul '+rows.length+' leads is class mein.'))+'</p>';
+  box.innerHTML=h;
+}
+function setClsFilter(c){ window.__clsFilter=c; renderClassBox(); }
+function clsToggleAll(el){ document.querySelectorAll('.clsChk').forEach(function(x){ x.checked=el.checked; }); }
+async function deleteClassSelected(){
+  var ids={}; document.querySelectorAll('.clsChk:checked').forEach(function(x){ ids[x.value]=1; });
+  var del=LEADS.filter(function(l){ return ids[l.id]; });
+  if(!del.length){ setStatus('Pehle tick karke leads chunein.'); return; }
+  var snap=JSON.stringify(LEADS);
+  askConfirm(del.length+' leads delete ho jayengi \u2014 aap ke account (cloud) se bhi. Ghalti ho jaye to "Wapas Lao" se foran undo ho jayega.', 'Delete Karo', async function(){
+    LEADS=LEADS.filter(function(l){ return !ids[l.id]; });
+    if(window.cloudDeleteLeads){ try{ await window.cloudDeleteLeads(del); }catch(e){} }
+    try{ await persistLeads(); }catch(e){}
+    MATCHES=freshMatches();
+    updateStats(); applyFilters(true); renderLeads(); renderBadBox();
+    setStatus(del.length+' leads delete ho gayein. Ab kul '+LEADS.length+' leads reh gayi hain.');
+    showUndo(del.length+' leads delete ho gayein.', async function(){
+      LEADS=JSON.parse(snap);
+      if(window.cloudOnLeadsAdded && !window.__demoMode){ try{ await window.cloudOnLeadsAdded(del); }catch(e){} }
+      try{ await persistLeads(); }catch(e){}
+      MATCHES=freshMatches();
+      updateStats(); applyFilters(true); renderLeads(); renderBadBox();
+      setStatus('Undo ho gaya \u2014 leads wapas aa gayein.');
+    });
+  });
+}
 function renderBadBox(){
   var box=document.getElementById('badBox'); if(!box) return;
   var bad=0, warn=0;
@@ -1377,6 +1493,7 @@ function renderBadBox(){
   if(!LEADS.length){ box.innerHTML=''; return; }
   box.innerHTML='<div class="badbox"><div><b>Data ki jaanch:</b> '+bad+' leads <b style="color:#b00020">GHALAT</b> hain (jo cutting sector mein hoti hi nahi) · '+warn+' shakki hain (sirf nishan lage ga, data rahe ga).</div>'+
   (bad? '<button class="btn" style="background:#b00020" onclick="removeBadLeads()">GHALAT Records Remove Karo ('+bad+')</button>' : '<span style="color:#137333;font-weight:700">Koi ghalat record nahi — data saaf hai.</span>')+'</div>';
+  renderClassBox();
 }
 async function removeBadLeads(){
   var badLeads=LEADS.filter(function(l){ var f=leadFlag(l); return f&&f.level==='bad'; });
@@ -1453,7 +1570,7 @@ function renderLeads(){
     if(kind==='seller' && !(l.intent==='seller'||l.intent==='rent-seller')) return false;
     if(kind==='rent' && String(l.intent).indexOf('rent')!==0) return false;
     if(kind==='flagged' && !leadFlag(l)) return false;
-    if(q){ var hay=(l.name+' '+l.phone+' '+l.location+' '+l.sector+' '+l.plotNo+' '+l.id).toLowerCase(); if(hay.indexOf(q)<0) return false; }
+    if(q){ var hay=[l.name,l.phone,l.location,l.sector,l.plotNo,l.type,l.id,sizeLabel(l.sizeMarla),l.detail].join(' '); if(!hayMatch(hay,q)) return false; }
     return true;
   });
   if(!rows.length){ box.innerHTML='<p style="color:#888;font-size:13px;padding:8px">Is filter mein koi lead nahi — pehle data put karein.</p>'; return; }
@@ -1463,7 +1580,7 @@ function renderLeads(){
     var f=leadFlag(l);
     var isB=(l.intent==='buyer'||l.intent==='rent-buyer');
     var li=LEADS.indexOf(l);
-    html+='<tr><td>'+esc(l.intent)+'</td><td>'+esc(l.location)+'</td><td>'+esc(l.sector||'—')+'</td><td>'+esc(l.plotNo||'—')+'</td><td>'+esc(l.type)+'</td><td>'+esc(sizeLabel(l.sizeMarla))+'</td><td>'+esc(moneyFmt(l.price))+'</td><td>'+esc(l.name)+'</td><td>'+esc(viewer? maskPhone(l.phone) : (l.phone||''))+'</td><td>'+esc(leadAge(l)||'—')+'</td><td>'+(f? '<span style="color:'+(f.level==='bad'?'#b00020':'#b07d00')+';font-weight:700">'+esc(f.msg)+'</span>' : '<span style="color:#137333">Theek</span>')+'</td><td>'+(isB? '<button class="btn grey" style="padding:4px 9px;font-size:12px" onclick="broadcastReq('+li+')">Requirement Broadcast</button>':'')+'</td></tr>';
+    html+='<tr><td>'+esc(l.intent)+'</td><td>'+esc(l.location)+'</td><td>'+esc(l.sector||'—')+'</td><td>'+esc(l.plotNo||'—')+'</td><td>'+esc(l.type)+'</td><td>'+esc(sizeLabel(l.sizeMarla))+'</td><td>'+esc(moneyFmt(l.price))+'</td><td>'+esc(l.name)+'</td><td>'+esc(viewer? maskPhone(l.phone) : (l.phone||''))+'</td><td>'+esc(leadAge(l)||'—')+'</td><td>'+classCellHtml(l,f)+'</td><td>'+(isB? '<button class="btn grey" style="padding:4px 9px;font-size:12px" onclick="broadcastReq('+li+')">Requirement Broadcast</button>':'')+'</td></tr>';
   });
   box.innerHTML=html+'</table><p style="padding:6px;color:#888">'+(rows.length>300? ('Sirf pehli 300 leads dikhai gayi hain ('+rows.length+' mein se).') : ('Kul '+rows.length+' leads'))+'</p>';
 }
@@ -1542,7 +1659,9 @@ function __undoGo(){ var cb=__undoCb; hideUndo(); if(cb) cb(); }
 
 function normSec(s){ return String(s||'').toUpperCase().replace(/[\s-]+/g,''); }
 function leadFlag(l){
-  if(!l || !l.location || !l.sizeMarla || !MASTER.length) return null;
+  if(!l) return null;
+  if(l.sizeMarla && Number(l.sizeMarla)>100) return {level:'warn', msg:'Size ghair-maamooli hai ('+sizeLabel(l.sizeMarla)+') — itna bara size aam plot/house ka nahi hota, pehle check kar lein'};
+  if(!l.location || !l.sizeMarla || !MASTER.length) return null;
   var rows=MASTER.filter(function(m){ return m.loc===l.location; });
   if(!rows.length) return null;
   var sec=normSec(l.sector);
